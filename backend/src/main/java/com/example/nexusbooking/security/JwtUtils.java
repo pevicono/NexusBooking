@@ -2,6 +2,8 @@ package com.example.nexusbooking.security;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,8 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtUtils.class);
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -44,13 +48,13 @@ public class JwtUtils {
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(authToken);
             return true;
         } catch (MalformedJwtException e) {
-            System.err.println("Invalid JWT token: " + e.getMessage());
+            log.warn("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            System.err.println("JWT token is expired: " + e.getMessage());
+            log.warn("JWT token expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            System.err.println("JWT token is unsupported: " + e.getMessage());
+            log.warn("JWT token unsupported: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            System.err.println("JWT claims string is empty: " + e.getMessage());
+            log.warn("JWT claims empty: {}", e.getMessage());
         }
 
         return false;
