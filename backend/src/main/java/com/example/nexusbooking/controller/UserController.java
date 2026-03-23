@@ -1,5 +1,6 @@
 package com.example.nexusbooking.controller;
 
+import com.example.nexusbooking.dto.ChangePasswordRequest;
 import com.example.nexusbooking.dto.MessageResponse;
 import com.example.nexusbooking.dto.UpdateUserRequest;
 import com.example.nexusbooking.dto.UserResponse;
@@ -46,6 +47,20 @@ public class UserController {
 
             User updatedUser = userService.updateUser(user, request.getEmail());
             return ResponseEntity.ok(UserResponse.from(updatedUser));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
+    @PutMapping("/me/password")
+    @Operation(summary = "Change current user's password")
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails,
+                                            @Valid @RequestBody ChangePasswordRequest request) {
+        try {
+            User user = userService.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            userService.changePassword(user, request.getCurrentPassword(), request.getNewPassword());
+            return ResponseEntity.ok(new MessageResponse("Password changed successfully"));
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
