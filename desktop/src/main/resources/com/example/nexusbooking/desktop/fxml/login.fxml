@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.example.nexusbooking.desktop.controller.LoginController"
+           styleClass="root-pane"
+           stylesheets="@../css/style.css">
+
+    <VBox styleClass="card" maxWidth="380" alignment="TOP_CENTER">
+
+        <Label text="NexusBooking" styleClass="app-title"/>
+
+        <HBox styleClass="tab-bar" alignment="CENTER">
+            <Button fx:id="tabLogin" text="Login" styleClass="tab-btn,tab-active"
+                    onAction="#showLogin" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+            <Button fx:id="tabRegister" text="Register" styleClass="tab-btn"
+                    onAction="#showRegister" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+        </HBox>
+
+        <StackPane minHeight="260" VBox.vgrow="NEVER">
+
+            <VBox fx:id="loginPane" styleClass="form-pane" spacing="12" alignment="TOP_LEFT">
+                <Label text="Email" styleClass="field-label"/>
+                <TextField fx:id="loginEmail" promptText="you@example.com" styleClass="field"/>
+                <Label text="Password" styleClass="field-label"/>
+                <PasswordField fx:id="loginPassword" promptText="••••••••" styleClass="field"/>
+                <Label fx:id="loginError" styleClass="error-label" wrapText="true" minHeight="16"/>
+                <Button text="Login" styleClass="btn-primary" maxWidth="Infinity" onAction="#doLogin"/>
+                <Hyperlink text="Forgot password?" onAction="#showForgotPassword" styleClass="link"/>
+            </VBox>
+
+            <VBox fx:id="registerPane" styleClass="form-pane" spacing="12" alignment="TOP_LEFT"
+                  visible="false" managed="false">
+                <Label text="Email" styleClass="field-label"/>
+                <TextField fx:id="regEmail" promptText="you@example.com" styleClass="field"/>
+                <Label text="Password" styleClass="field-label"/>
+                <PasswordField fx:id="regPassword" promptText="min. 6 characters" styleClass="field"/>
+                <Label text="Confirm Password" styleClass="field-label"/>
+                <PasswordField fx:id="regConfirm" promptText="••••••••" styleClass="field"/>
+                <Label fx:id="regError" styleClass="error-label" wrapText="true" minHeight="16"/>
+                <Button text="Register" styleClass="btn-primary" maxWidth="Infinity" onAction="#doRegister"/>
+            </VBox>
+
+        </StackPane>
+    </VBox>
+</StackPane>

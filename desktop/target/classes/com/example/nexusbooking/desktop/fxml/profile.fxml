@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.nexusbooking.desktop.controller.ProfileController"
+            styleClass="root-pane"
+            stylesheets="@../css/style.css">
+
+    <!-- TOP BAR -->
+    <top>
+        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
+            <Label text="NexusBooking" styleClass="app-title-small"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="topEmail" styleClass="field-value"/>
+            <Button text="Logout" styleClass="btn-danger" onAction="#doLogout"/>
+        </HBox>
+    </top>
+
+    <center>
+        <StackPane>
+            <VBox styleClass="card" maxWidth="420" alignment="TOP_LEFT">
+
+                <!-- Fixed-height panel area — no jumping -->
+                <StackPane minHeight="280">
+
+                    <!-- VIEW PANEL -->
+                    <VBox fx:id="viewPane" styleClass="form-pane" spacing="14" alignment="TOP_LEFT">
+                        <Label text="My Profile" styleClass="section-title"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="Email:" styleClass="field-label" minWidth="50"/>
+                            <Label fx:id="lblEmail" styleClass="field-value"/>
+                        </HBox>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="Role:" styleClass="field-label" minWidth="50"/>
+                            <Label fx:id="lblRole" styleClass="field-value"/>
+                        </HBox>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="ID:" styleClass="field-label" minWidth="50"/>
+                            <Label fx:id="lblId" styleClass="field-value"/>
+                        </HBox>
+                        <Region VBox.vgrow="ALWAYS"/>
+                        <Button text="Edit Profile" styleClass="btn-primary" maxWidth="Infinity" onAction="#showEdit"/>
+                    </VBox>
+
+                    <!-- EDIT EMAIL PANEL -->
+                    <VBox fx:id="editPane" styleClass="form-pane" spacing="14" alignment="TOP_LEFT"
+                          visible="false" managed="false">
+                        <Label text="Edit Profile" styleClass="section-title"/>
+                        <Label text="Email" styleClass="field-label"/>
+                        <TextField fx:id="editEmail" styleClass="field"/>
+                        <Label fx:id="editError" styleClass="error-label" wrapText="true" minHeight="16"/>
+                        <Label fx:id="editSuccess" styleClass="success-label" wrapText="true" minHeight="16"/>
+                        <Region VBox.vgrow="ALWAYS"/>
+                        <HBox spacing="10">
+                            <Button text="Save Email" styleClass="btn-primary" maxWidth="Infinity"
+                                    onAction="#doSaveEmail" HBox.hgrow="ALWAYS"/>
+                            <Button text="Cancel" styleClass="btn-secondary" maxWidth="Infinity"
+                                    onAction="#showView" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                        <Button text="Change Password" styleClass="btn-secondary" maxWidth="Infinity"
+                                onAction="#showChangePassword"/>
+                    </VBox>
+
+                    <!-- CHANGE PASSWORD PANEL -->
+                    <VBox fx:id="passwordPane" styleClass="form-pane" spacing="14" alignment="TOP_LEFT"
+                          visible="false" managed="false">
+                        <Label text="Change Password" styleClass="section-title"/>
+                        <Label text="Current Password" styleClass="field-label"/>
+                        <PasswordField fx:id="currentPassword" styleClass="field"/>
+                        <Label text="New Password" styleClass="field-label"/>
+                        <PasswordField fx:id="newPassword" promptText="min. 6 characters" styleClass="field"/>
+                        <Label text="Confirm New Password" styleClass="field-label"/>
+                        <PasswordField fx:id="confirmPassword" styleClass="field"/>
+                        <Label fx:id="passwordError" styleClass="error-label" wrapText="true" minHeight="16"/>
+                        <Label fx:id="passwordSuccess" styleClass="success-label" wrapText="true" minHeight="16"/>
+                        <Region VBox.vgrow="ALWAYS"/>
+                        <HBox spacing="10">
+                            <Button text="Save Password" styleClass="btn-primary" maxWidth="Infinity"
+                                    onAction="#doChangePassword" HBox.hgrow="ALWAYS"/>
+                            <Button text="Back" styleClass="btn-secondary" maxWidth="Infinity"
+                                    onAction="#showEdit" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+
+                </StackPane>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>
