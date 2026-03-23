@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexusbooking-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nexusbooking
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/V1__create_users_table.sql:/docker-entrypoint-initdb.d/01_create_tables.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nexusbooking"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nexusbooking-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@nexusbooking.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data:
