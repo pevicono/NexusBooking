@@ -1,0 +1,10 @@
+# Ignore Maven temporary files
+pom.xml.tag
+pom.xml.releaseBackup
+
+# Ignore build folders
+target/
+backend/target/
+
+# Ignore Visual Studio settings
+.vs/

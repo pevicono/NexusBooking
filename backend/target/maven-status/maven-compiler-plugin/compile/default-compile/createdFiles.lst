@@ -15,5 +15,6 @@ com\example\nexusbooking\controller\AuthController.class
 com\example\nexusbooking\config\OpenApiConfig.class
 com\example\nexusbooking\dto\LoginRequest.class
 com\example\nexusbooking\dto\UserResponse.class
+com\example\nexusbooking\dto\ChangePasswordRequest.class
 com\example\nexusbooking\model\User$Role.class
 com\example\nexusbooking\dto\AuthResponse.class
