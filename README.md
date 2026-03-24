@@ -6,6 +6,7 @@ Full-stack booking platform. This repository contains two independently runnable
 |-------------|------------------------------------|--------------------------------|
 | `backend/`  | Java 21 · Spring Boot 3.2 · Maven  | REST API with JWT auth         |
 | `database/` | Docker · PostgreSQL 16 · pgAdmin 4 | Database container & scripts   |
+| `mobile/`   | Kotlin · Jetpack Compose · Retrofit | Android client                |
 
 ---
 
@@ -16,6 +17,7 @@ Full-stack booking platform. This repository contains two independently runnable
 | Docker Desktop | any       | Runs Postgres + pgAdmin containers  |
 | Java           | 21+       | Compiles and runs the backend       |
 | Maven          | 3.8+      | Builds and tests the backend        |
+| Android SDK    | API 26+   | Builds and runs the mobile client   |
 
 ---
 
@@ -69,14 +71,27 @@ NexusBooking/
 │   │   ├── application.properties    # DB + JWT + Swagger config
 │   │   └── db/migration/             # Flyway versioned SQL migrations
 │   └── pom.xml
-└── database/                         # Database infrastructure
-    ├── docker-compose.yml            # Postgres + pgAdmin services
-    ├── db.ps1                        # DB management script
-    └── scripts/
-        ├── V1__create_users_table.sql  # Schema DDL
-        ├── seed_data.sql               # Sample data
-        ├── clear_data.sql              # Truncate all tables
-        └── drop_tables.sql             # Drop all tables
+├── database/                         # Database infrastructure
+│   ├── docker-compose.yml            # Postgres + pgAdmin services
+│   ├── db.ps1                        # DB management script
+│   └── scripts/
+│       ├── V1__create_users_table.sql  # Schema DDL
+│       ├── seed_data.sql               # Sample data
+│       ├── clear_data.sql              # Truncate all tables
+│       └── drop_tables.sql             # Drop all tables
+└── mobile/                           # Android client
+    └── app/
+        └── src/main/java/.../
+            ├── data/
+            │   ├── local/            # DataStore (JWT token)
+            │   ├── remote/           # Retrofit API + DTOs
+            │   └── repository/       # Auth & User repositories
+            ├── di/                   # Hilt dependency injection
+            ├── ui/
+            │   ├── login/            # Login & register screen
+            │   ├── profile/          # Profile screen
+            │   └── navigation/       # Nav graph
+            └── util/                 # Shared utilities
 ```
 
 ---
@@ -106,6 +121,23 @@ mvn test
 ```
 
 Tests use an H2 in-memory database — no running container required. Flyway is disabled in the test profile.
+
+---
+
+## Mobile client
+
+Android app built with Kotlin and Jetpack Compose. Connects to the backend REST API using Retrofit and stores the JWT token with DataStore.
+
+**Requirements:** Android SDK (API 26+) and an emulator or physical device running Android 8+
+
+**Setup:**
+The app points to `http://10.0.2.2:8080` by default, which is the standard Android emulator alias for `localhost`. Make sure the backend is running before launching the app. If using a physical device, update the base URL in `mobile/app/src/main/java/.../data/remote/ApiService.kt`.
+
+**Run:**
+```bash
+cd mobile
+./gradlew installDebug
+```
 
 ---
 
