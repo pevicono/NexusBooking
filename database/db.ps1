@@ -1,7 +1,5 @@
 # NexusBooking – Database Management Scripts
-#
 # Helper PowerShell scripts for working with the Postgres container.
-# Run these from the /database directory.
 
 param(
     [Parameter(Position=0, Mandatory=$true)]
@@ -17,8 +15,8 @@ $DB_PASSWORD = "postgres"
 $SCRIPTS_DIR = Join-Path $PSScriptRoot "scripts"
 
 function RunSql([string]$file) {
-    $env:PGPASSWORD = $DB_PASSWORD
-    psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -f $file
+    # Using docker exec to run SQL inside the container
+    Get-Content $file | docker exec -i $(docker compose ps -q postgres) psql -U $DB_USER -d $DB_NAME
 }
 
 switch ($Command) {
@@ -57,8 +55,8 @@ switch ($Command) {
 
     "psql" {
         Write-Host "Opening psql session for database '$DB_NAME'..." -ForegroundColor Cyan
-        $env:PGPASSWORD = $DB_PASSWORD
-        psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME
+        #Open interactive psql inside the container
+        docker exec -it $(docker compose ps -q postgres) psql -U $DB_USER -d $DB_NAME
     }
 
     "logs" {
