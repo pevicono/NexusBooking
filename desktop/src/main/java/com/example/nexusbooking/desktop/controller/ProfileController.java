@@ -46,7 +46,7 @@ public class ProfileController implements Initializable {
     }
 
     private void loadProfile() {
-        new Thread(() -> {
+        runAsync(() -> {
             try {
                 UserResponse user = App.getApiClient().getCurrentUser();
                 Platform.runLater(() -> {
@@ -59,7 +59,7 @@ public class ProfileController implements Initializable {
             } catch (Exception e) {
                 Platform.runLater(() -> lblEmail.setText("Failed to load profile."));
             }
-        }).start();
+        });
     }
 
     @FXML private void showView() { show(viewPane); }
@@ -90,7 +90,7 @@ public class ProfileController implements Initializable {
         if (!newEmail.matches("^[^@]+@[^@]+\\.[^@]+$")) { editError.setText("Please enter a valid email address."); return; }
         if (newEmail.length() > 50) { editError.setText("Email must be at most 50 characters."); return; }
 
-        new Thread(() -> {
+        runAsync(() -> {
             try {
                 UserResponse updated = App.getApiClient().updateEmail(newEmail);
                 Platform.runLater(() -> {
@@ -104,7 +104,7 @@ public class ProfileController implements Initializable {
             } catch (Exception e) {
                 Platform.runLater(() -> editError.setText("Could not connect to server."));
             }
-        }).start();
+        });
     }
 
     @FXML
@@ -121,7 +121,7 @@ public class ProfileController implements Initializable {
         if (newPwd.length() > 40) { passwordError.setText("New password must be at most 40 characters."); return; }
         if (!newPwd.equals(confirm)) { passwordError.setText("Passwords do not match."); return; }
 
-        new Thread(() -> {
+        runAsync(() -> {
             try {
                 App.getApiClient().changePassword(current, newPwd);
                 Platform.runLater(() -> {
@@ -135,19 +135,25 @@ public class ProfileController implements Initializable {
             } catch (Exception e) {
                 Platform.runLater(() -> passwordError.setText("Could not connect to server."));
             }
-        }).start();
+        });
     }
 
     @FXML
     private void doLogout() {
-        new Thread(() -> {
+        runAsync(() -> {
             try { App.getApiClient().logout(); } catch (Exception ignored) {}
             finally {
                 Platform.runLater(() -> {
                     try { App.showLogin(); } catch (Exception e) { e.printStackTrace(); }
                 });
             }
-        }).start();
+        });
+    }
+
+    private void runAsync(Runnable task) {
+        Thread worker = new Thread(task, "desktop-profile-async");
+        worker.setDaemon(true);
+        worker.start();
     }
 }
 

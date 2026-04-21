@@ -6,6 +6,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.net.URL;
+
 public class App extends Application {
 
     private static Stage primaryStage;
@@ -21,14 +24,29 @@ public class App extends Application {
     }
 
     public static void showLogin() throws Exception {
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("fxml/login.fxml"));
-        Scene scene = new Scene(loader.load(), 480, 560);
-        primaryStage.setScene(scene);
+        loadScene("/com/example/nexusbooking/desktop/fxml/login.fxml", 480, 560);
     }
 
     public static void showProfile() throws Exception {
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("fxml/profile.fxml"));
-        Scene scene = new Scene(loader.load(), 560, 520);
+        loadScene("/com/example/nexusbooking/desktop/fxml/profile.fxml", 560, 520);
+    }
+
+    public static void showHome() throws Exception {
+        loadScene("/com/example/nexusbooking/desktop/fxml/home.fxml", 920, 640);
+    }
+
+    public static void showBackoffice() throws Exception {
+        loadScene("/com/example/nexusbooking/desktop/fxml/backoffice.fxml", 980, 680);
+    }
+
+    private static void loadScene(String resourcePath, int width, int height) throws IOException {
+        URL resource = App.class.getResource(resourcePath);
+        if (resource == null) {
+            throw new IOException("FXML resource not found: " + resourcePath);
+        }
+
+        FXMLLoader loader = new FXMLLoader(resource);
+        Scene scene = new Scene(loader.load(), width, height);
         primaryStage.setScene(scene);
     }
 

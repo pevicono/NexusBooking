@@ -2,6 +2,7 @@ package com.example.nexusbooking.desktop.controller;
 
 import com.example.nexusbooking.desktop.App;
 import com.example.nexusbooking.desktop.api.ApiException;
+import com.example.nexusbooking.desktop.model.UserResponse;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -53,14 +54,21 @@ public class LoginController {
         if (!email.matches("^[^@]+@[^@]+\\.[^@]+$")) { loginError.setText("Please enter a valid email address."); return; }
         if (password.isEmpty()) { loginError.setText("Please enter your password."); return; }
 
-        new Thread(() -> {
+        runAsync(() -> {
             try {
                 App.getApiClient().login(email, password);
+                UserResponse user = App.getApiClient().getCurrentUser();
                 Platform.runLater(() -> {
                     try {
-                        App.showProfile();
+                        if ("ADMIN".equalsIgnoreCase(user.getRole())) {
+                            App.showBackoffice();
+                        } else {
+                            App.showHome();
+                        }
                     } catch (Exception e) {
-                        loginError.setText("Failed to open profile.");
+                        e.printStackTrace();
+                        String detail = e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+                        loginError.setText("Failed to open dashboard: " + detail);
                     }
                 });
             } catch (ApiException e) {
@@ -68,7 +76,7 @@ public class LoginController {
             } catch (Exception e) {
                 Platform.runLater(() -> loginError.setText("Could not connect to server."));
             }
-        }).start();
+        });
     }
 
     @FXML
@@ -86,7 +94,7 @@ public class LoginController {
         if (password.length() > 40) { regError.setText("Password must be at most 40 characters."); return; }
         if (!password.equals(confirm)) { regError.setText("Passwords do not match."); return; }
 
-        new Thread(() -> {
+        runAsync(() -> {
             try {
                 App.getApiClient().register(email, password);
                 Platform.runLater(() -> {
@@ -99,7 +107,7 @@ public class LoginController {
             } catch (Exception e) {
                 Platform.runLater(() -> regError.setText("Could not connect to server."));
             }
-        }).start();
+        });
     }
 
     @FXML
@@ -114,5 +122,11 @@ public class LoginController {
             "http://<server-ip>:8080/swagger-ui.html"
         );
         alert.showAndWait();
+    }
+
+    private void runAsync(Runnable task) {
+        Thread worker = new Thread(task, "desktop-login-async");
+        worker.setDaemon(true);
+        worker.start();
     }
 }

@@ -4,4 +4,11 @@
 -- and resetting auto-increment sequences.
 -- =============================================================
 
-TRUNCATE TABLE users RESTART IDENTITY CASCADE;
+TRUNCATE TABLE
+	bookings,
+	group_members,
+	groups,
+	incidents,
+	facilities,
+	users
+RESTART IDENTITY CASCADE;

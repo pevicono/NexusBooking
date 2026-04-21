@@ -65,4 +65,10 @@ public class UserController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
+
+    @GetMapping("/valid-for-groups")
+    @Operation(summary = "Get all non-admin users (valid for groups/bookings)")
+    public ResponseEntity<?> getValidUsersForGroups() {
+        return ResponseEntity.ok(userService.findNonAdminUsers());
+    }
 }

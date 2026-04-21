@@ -86,7 +86,7 @@
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-background-radius: 6;
-    -fx-padding: 9 0;
+    -fx-padding: 8 16;
     -fx-cursor: hand;
     -fx-font-size: 13px;
 }
@@ -100,7 +100,7 @@
     -fx-text-fill: #333;
     -fx-font-weight: bold;
     -fx-background-radius: 6;
-    -fx-padding: 9 0;
+    -fx-padding: 8 16;
     -fx-cursor: hand;
     -fx-font-size: 13px;
 }
@@ -114,7 +114,7 @@
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-background-radius: 6;
-    -fx-padding: 6 16;
+    -fx-padding: 8 16;
     -fx-cursor: hand;
     -fx-font-size: 13px;
 }
@@ -180,4 +180,30 @@
 .profile-tabs .tab:selected .tab-label {
     -fx-font-weight: bold;
     -fx-text-fill: #1e3a5f;
+}
+
+.status-pill {
+    -fx-padding: 3 8;
+    -fx-background-radius: 999;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.status-open,
+.status-pending {
+    -fx-background-color: #fff2cc;
+    -fx-text-fill: #8a6d1f;
+}
+
+.status-progress,
+.status-confirmed {
+    -fx-background-color: #d8ecff;
+    -fx-text-fill: #1f5c8a;
+}
+
+.status-resolved,
+.status-closed,
+.status-cancelled {
+    -fx-background-color: #dff3e2;
+    -fx-text-fill: #22653a;
 }

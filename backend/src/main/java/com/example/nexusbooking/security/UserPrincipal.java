@@ -12,13 +12,15 @@ public class UserPrincipal implements UserDetails {
     private Long id;
     private String email;
     private String password;
+    private boolean active;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String email, String password,
+    public UserPrincipal(Long id, String email, String password, boolean active,
                         Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
+        this.active = active;
         this.authorities = authorities;
     }
 
@@ -29,6 +31,7 @@ public class UserPrincipal implements UserDetails {
                 user.getId(),
                 user.getEmail(),
                 user.getPassword(),
+                user.isActive(),
                 Collections.singletonList(authority)
         );
     }
@@ -73,6 +76,6 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return active;
     }
 }

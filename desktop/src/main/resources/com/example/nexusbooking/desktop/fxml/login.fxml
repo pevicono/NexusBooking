@@ -28,7 +28,7 @@
                 <Label text="Password" styleClass="field-label"/>
                 <PasswordField fx:id="loginPassword" promptText="••••••••" styleClass="field"/>
                 <Label fx:id="loginError" styleClass="error-label" wrapText="true" minHeight="16"/>
-                <Button text="Login" styleClass="btn-primary" maxWidth="Infinity" onAction="#doLogin"/>
+                <Button fx:id="loginSubmitButton" text="Login" styleClass="btn-primary" maxWidth="Infinity" onAction="#doLogin"/>
                 <Hyperlink text="Forgot password?" onAction="#showForgotPassword" styleClass="link"/>
             </VBox>
 
@@ -41,7 +41,7 @@
                 <Label text="Confirm Password" styleClass="field-label"/>
                 <PasswordField fx:id="regConfirm" promptText="••••••••" styleClass="field"/>
                 <Label fx:id="regError" styleClass="error-label" wrapText="true" minHeight="16"/>
-                <Button text="Register" styleClass="btn-primary" maxWidth="Infinity" onAction="#doRegister"/>
+                <Button fx:id="registerSubmitButton" text="Register" styleClass="btn-primary" maxWidth="Infinity" onAction="#doRegister"/>
             </VBox>
 
         </StackPane>

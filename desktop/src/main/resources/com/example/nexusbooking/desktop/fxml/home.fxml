@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.nexusbooking.desktop.controller.HomeController"
+            styleClass="root-pane"
+            stylesheets="@../css/style.css">
+
+    <top>
+        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
+            <Label text="NexusBooking - Usuari" styleClass="app-title-small"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="welcomeLabel" text="Benvingut/da" styleClass="field-value"/>
+            <Button text="Tancar sessio" styleClass="btn-danger" onAction="#logout"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+            <VBox spacing="15">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <!-- Summary Cards -->
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Button text="Refrescar" styleClass="btn-secondary" onAction="#refreshAll"/>
+                    <Label fx:id="messageLabel" styleClass="success-label"/>
+                </HBox>
+
+                <HBox spacing="12" alignment="TOP_LEFT">
+                    <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Reserves futures" styleClass="section-subtitle"/>
+                        <Label fx:id="upcomingCountLabel" text="0" styleClass="app-title-small"/>
+                    </VBox>
+                    <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Els meus grups" styleClass="section-subtitle"/>
+                        <Label fx:id="groupsCountLabel" text="0" styleClass="app-title-small"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Reserves Section -->
+                <VBox spacing="8">
+                    <Label text="Les meves reserves" styleClass="section-title"/>
+                    <ScrollPane style="-fx-border-color: #ddd; -fx-border-radius: 4;">
+                        <VBox fx:id="bookingsCardsContainer" spacing="8">
+                            <padding>
+                                <Insets top="8" right="8" bottom="8" left="8"/>
+                            </padding>
+                        </VBox>
+                    </ScrollPane>
+                    <HBox spacing="8">
+                        <Button fx:id="createBookingButton" text="Crear reserva" styleClass="btn-primary" onAction="#showCreateBookingDialog" style="-fx-padding: 8 16 8 16;"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Grups Section -->
+                <VBox spacing="8">
+                    <Label text="Els meus grups" styleClass="section-title"/>
+                    <ScrollPane style="-fx-border-color: #ddd; -fx-border-radius: 4;">
+                        <VBox fx:id="groupsCardsContainer" spacing="8">
+                            <padding>
+                                <Insets top="8" right="8" bottom="8" left="8"/>
+                            </padding>
+                        </VBox>
+                    </ScrollPane>
+                    <HBox spacing="8">
+                        <Button fx:id="createGroupButton" text="Crear grup" styleClass="btn-primary" onAction="#showCreateGroupDialog" style="-fx-padding: 8 16 8 16;"/>
+                        <TextField fx:id="joinGroupId" promptText="Codi del grup per unir-me" styleClass="field" prefHeight="34" prefWidth="250"/>
+                        <Button fx:id="joinGroupButton" text="Unir-me" styleClass="btn-secondary" onAction="#joinGroup" style="-fx-padding: 8 16 8 16;"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

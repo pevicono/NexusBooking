@@ -36,7 +36,8 @@ public class Config {
             }
 
             // 3. Write a default config.properties next to the JAR so the user can edit it
-            try (OutputStream out = Files.newOutputStream(externalConfig)) {
+            Path defaultConfigPath = localConfig;
+            try (OutputStream out = Files.newOutputStream(defaultConfigPath)) {
                 Properties defaults = new Properties();
                 defaults.setProperty("api.base.url", DEFAULT_URL);
                 defaults.store(out, "NexusBooking Desktop Configuration");

@@ -6,12 +6,14 @@ public class UserResponse {
     private Long id;
     private String email;
     private String role;
+    private boolean active;
 
     public static UserResponse from(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
         response.setEmail(user.getEmail());
         response.setRole(user.getRole().name());
+        response.setActive(user.isActive());
         return response;
     }
 
@@ -37,5 +39,13 @@ public class UserResponse {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
