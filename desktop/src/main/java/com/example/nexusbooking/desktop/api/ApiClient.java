@@ -14,7 +14,13 @@ public class ApiClient {
     private final String BASE_URL = Config.getBaseUrl();
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
-    private final OkHttpClient http = new OkHttpClient();
+    private final OkHttpClient http = new OkHttpClient.Builder()
+        .connectTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
+        .writeTimeout(20, java.util.concurrent.TimeUnit.SECONDS)
+        .addNetworkInterceptor(new SecurityHeaderInterceptor())  // Add security headers
+        .build();
+        
     private final Gson gson = new Gson();
 
     private String token;

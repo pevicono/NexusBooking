@@ -92,6 +92,14 @@ public class LoginController {
         if (password.isEmpty()) { regError.setText("Please enter a password."); return; }
         if (password.length() < 6) { regError.setText("Password must be at least 6 characters."); return; }
         if (password.length() > 40) { regError.setText("Password must be at most 40 characters."); return; }
+        
+        String strengthMsg = validatePasswordStrength(password);
+        if (strengthMsg != null) { 
+            regError.setText(strengthMsg);
+            regError.setStyle("-fx-text-fill: orange;");
+            // Still allow registration but warn user
+        }
+        
         if (!password.equals(confirm)) { regError.setText("Passwords do not match."); return; }
 
         runAsync(() -> {
@@ -128,5 +136,32 @@ public class LoginController {
         Thread worker = new Thread(task, "desktop-login-async");
         worker.setDaemon(true);
         worker.start();
+    }
+    
+    /**
+        * Validate password strength
+     * Returns warning message if password is weak, null if strong
+     */
+    private String validatePasswordStrength(String password) {
+        if (password.length() < 8) {
+            return "Warning: Password should be at least 8 characters for better security";
+        }
+        
+        boolean hasUppercase = password.matches(".*[A-Z].*");
+        boolean hasLowercase = password.matches(".*[a-z].*");
+        boolean hasDigits = password.matches(".*\\d.*");
+        boolean hasSpecialChars = password.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*");
+        
+        int strength = 0;
+        if (hasUppercase) strength++;
+        if (hasLowercase) strength++;
+        if (hasDigits) strength++;
+        if (hasSpecialChars) strength++;
+        
+        if (strength < 2) {
+            return "Note: Password should include uppercase, lowercase, and numbers for better security";
+        }
+        
+        return null;  // Password is strong enough
     }
 }

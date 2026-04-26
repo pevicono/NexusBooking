@@ -1,6 +1,7 @@
 package com.example.nexusbooking.config;
 
 import com.example.nexusbooking.security.AuthTokenFilter;
+import com.example.nexusbooking.security.RequestValidationFilter;
 import com.example.nexusbooking.service.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,11 @@ public class SecurityConfig {
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
+    
+    @Bean
+    public RequestValidationFilter requestValidationFilter() {
+        return new RequestValidationFilter();
+    }
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -49,13 +55,13 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
@@ -65,8 +71,28 @@ public class SecurityConfig {
                 );
 
         http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(requestValidationFilter(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
+        
+        http.headers(headers -> headers
+                .frameOptions(frame -> frame.disable())  // Para H2 console en dev
+                .httpStrictTransportSecurity(hsts -> hsts  // HSTS para TLS
+                        .includeSubDomains(true)
+                        .maxAgeInSeconds(63072000)  // 2 años
+                )
+                .contentSecurityPolicy(csp -> csp
+                        .policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
+                )
+        );
+        
+        http.headers(headers -> headers
+                .addHeaderWriter((request, response) -> {
+                    response.setHeader("X-Content-Type-Options", "nosniff");
+                    response.setHeader("X-Frame-Options", "DENY");
+                    response.setHeader("X-XSS-Protection", "1; mode=block");
+                    response.setHeader("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
+                })
+        );
 
         return http.build();
     }

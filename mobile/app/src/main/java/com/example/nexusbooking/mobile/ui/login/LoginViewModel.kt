@@ -39,10 +39,22 @@ class LoginViewModel @Inject constructor(
     }
 
     fun register(email: String, password: String) {
+        val strengthWarning = validatePasswordStrength(password)
+        if (email.isEmpty() || password.isEmpty()) {
+            _registerState.value = LoginUiState(error = "Email and password are required")
+            return
+        }
+        
         viewModelScope.launch {
             _registerState.value = LoginUiState(isLoading = true)
             _registerState.value = when (val result = authRepository.register(email, password)) {
-                is Resource.Success -> LoginUiState(success = true)
+                is Resource.Success -> {
+                    if (strengthWarning != null) {
+                        LoginUiState(success = true, error = "Note: $strengthWarning")
+                    } else {
+                        LoginUiState(success = true)
+                    }
+                }
                 is Resource.Error -> LoginUiState(error = result.message)
                 is Resource.Loading -> LoginUiState(isLoading = true)
             }
@@ -51,4 +63,27 @@ class LoginViewModel @Inject constructor(
 
     fun clearLoginError() { _loginState.value = LoginUiState() }
     fun clearRegisterError() { _registerState.value = LoginUiState() }
+    
+    /**
+        * Validate password strength
+     * Returns warning message if password is weak, null if strong
+     */
+    private fun validatePasswordStrength(password: String): String? {
+        if (password.length < 8) {
+            return "Password should be at least 8 characters"
+        }
+        
+        val hasUppercase = password.any { it.isUpperCase() }
+        val hasLowercase = password.any { it.isLowerCase() }
+        val hasDigits = password.any { it.isDigit() }
+        val hasSpecialChars = password.any { !it.isLetterOrDigit() }
+        
+        val strength = listOf(hasUppercase, hasLowercase, hasDigits, hasSpecialChars).count { it }
+        
+        if (strength < 2) {
+            return "Password should include uppercase, lowercase, and numbers"
+        }
+        
+        return null
+    }
 }
