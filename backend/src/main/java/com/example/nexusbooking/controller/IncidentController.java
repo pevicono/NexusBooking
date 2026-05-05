@@ -37,6 +37,7 @@ public class IncidentController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Create incident")
     public ResponseEntity<?> create(@AuthenticationPrincipal UserDetails userDetails,
                                     @Valid @RequestBody IncidentRequest request) {

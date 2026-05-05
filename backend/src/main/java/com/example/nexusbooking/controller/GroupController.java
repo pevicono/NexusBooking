@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,7 @@ public class GroupController {
     }
 
     @GetMapping("/mine")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "List current user's groups")
     public ResponseEntity<?> mine(@AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -48,6 +50,7 @@ public class GroupController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Create a group")
     public ResponseEntity<?> create(@AuthenticationPrincipal UserDetails userDetails,
                                     @Valid @RequestBody GroupRequest request) {
@@ -60,6 +63,7 @@ public class GroupController {
         }
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/{id}/join")
     @Operation(summary = "Join a group")
     public ResponseEntity<?> join(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
@@ -72,6 +76,7 @@ public class GroupController {
         }
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/join-by-code")
     @Operation(summary = "Join a group by join code")
     public ResponseEntity<?> joinByCode(@AuthenticationPrincipal UserDetails userDetails,
@@ -84,7 +89,8 @@ public class GroupController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
-
+PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @
     @PostMapping("/{id}/leave")
     @Operation(summary = "Leave a group")
     public ResponseEntity<?> leave(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
@@ -97,7 +103,8 @@ public class GroupController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
-
+PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a group (owner only)")
     public ResponseEntity<?> delete(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
@@ -110,7 +117,8 @@ public class GroupController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
-
+PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @
     @PutMapping("/{id}")
     @Operation(summary = "Edit a group (owner only)")
     public ResponseEntity<?> update(@AuthenticationPrincipal UserDetails userDetails,

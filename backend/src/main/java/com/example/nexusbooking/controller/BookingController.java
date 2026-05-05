@@ -31,6 +31,7 @@ public class BookingController {
     }
 
     @GetMapping("/mine")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "List current user's bookings")
     public ResponseEntity<?> mine(@AuthenticationPrincipal UserDetails userDetails) {
         try {
@@ -50,6 +51,7 @@ public class BookingController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Create booking")
     public ResponseEntity<?> create(@AuthenticationPrincipal UserDetails userDetails,
                                     @Valid @RequestBody BookingRequest request) {
@@ -62,6 +64,7 @@ public class BookingController {
         }
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/{id}/cancel")
     @Operation(summary = "Cancel booking")
     public ResponseEntity<?> cancel(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
@@ -74,6 +77,7 @@ public class BookingController {
         }
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     @Operation(summary = "Edit booking")
     public ResponseEntity<?> update(@AuthenticationPrincipal UserDetails userDetails,

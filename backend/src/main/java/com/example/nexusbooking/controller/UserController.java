@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Get currently logged-in user")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         return userService.findByEmail(userDetails.getUsername())
@@ -37,6 +39,7 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.badRequest().body(new MessageResponse("User not found")));
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/me")
     @Operation(summary = "Edit current user's email")
     public ResponseEntity<?> updateCurrentUser(@AuthenticationPrincipal UserDetails userDetails,
@@ -52,6 +55,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/me/password")
     @Operation(summary = "Change current user's password")
     public ResponseEntity<?> changePassword(@AuthenticationPrincipal UserDetails userDetails,
@@ -66,6 +70,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/valid-for-groups")
     @Operation(summary = "Get all non-admin users (valid for groups/bookings)")
     public ResponseEntity<?> getValidUsersForGroups() {
