@@ -1285,6 +1285,17 @@ public class BackofficeController {
 
     @FXML
     private void showCreateGroupDialog() {
+        runAsync(() -> {
+            try {
+                JsonArray validUsers = App.getApiClient().getValidUsersForGroups();
+                Platform.runLater(() -> openCreateGroupDialogWith(validUsers));
+            } catch (Exception e) {
+                Platform.runLater(() -> messageLabel.setText(errorMessage(e)));
+            }
+        });
+    }
+
+    private void openCreateGroupDialogWith(JsonArray validUsers) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Crear grup");
         dialog.setHeaderText("Crear nou grup (admin)");
@@ -1293,24 +1304,18 @@ public class BackofficeController {
         content.setPadding(new Insets(20));
 
         ComboBox<String> ownerCombo = new ComboBox<>();
-        TextField nameField = new TextField();
         ownerCombo.setId("adminGroupOwnerCombo");
+        TextField nameField = new TextField();
         nameField.setId("adminGroupNameField");
         nameField.setPromptText("Nom del grup");
         TextField descriptionField = new TextField();
         descriptionField.setId("adminGroupDescriptionField");
         descriptionField.setPromptText("Descripció");
 
-        try {
-            JsonArray validUsers = App.getApiClient().getValidUsersForGroups();
-            validUsers.forEach(el -> {
-                JsonObject obj = el.getAsJsonObject();
-                ownerCombo.getItems().add(obj.get("id") + " - " + obj.get("email").getAsString());
-            });
-        } catch (Exception e) {
-            messageLabel.setText(errorMessage(e));
-            return;
-        }
+        validUsers.forEach(el -> {
+            JsonObject obj = el.getAsJsonObject();
+            ownerCombo.getItems().add(obj.get("id") + " - " + obj.get("email").getAsString());
+        });
 
         content.getChildren().addAll(
             new Label("Propietari (no admin):"), ownerCombo,

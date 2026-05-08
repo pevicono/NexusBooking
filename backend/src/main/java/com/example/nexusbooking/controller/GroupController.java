@@ -89,8 +89,8 @@ public class GroupController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
-PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PostMapping("/{id}/leave")
     @Operation(summary = "Leave a group")
     public ResponseEntity<?> leave(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
@@ -103,8 +103,8 @@ PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
-PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a group (owner only)")
     public ResponseEntity<?> delete(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
@@ -117,8 +117,8 @@ PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
-PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @PutMapping("/{id}")
     @Operation(summary = "Edit a group (owner only)")
     public ResponseEntity<?> update(@AuthenticationPrincipal UserDetails userDetails,

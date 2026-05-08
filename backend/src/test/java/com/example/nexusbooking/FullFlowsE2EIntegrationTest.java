@@ -84,7 +84,8 @@ class FullFlowsE2EIntegrationTest {
         long bookingId = createBookingByAdmin(adminToken, user1Id, facilityId, bookingGroupId, start, end, "Reserva admin");
         updateBookingByAdmin(adminToken, bookingId, user1Id, facilityId, bookingGroupId, start.plusHours(1), end.plusHours(1), "Reserva editada");
 
-        mockMvc.perform(withAuth(post("/api/admin/bookings/{id}/cancel", bookingId), adminToken))
+        mockMvc.perform(withAuth(post("/api/admin/bookings/{id}/cancel", bookingId)
+                        .contentType(MediaType.APPLICATION_JSON), adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Booking cancelled"));
 
@@ -101,15 +102,18 @@ class FullFlowsE2EIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
 
-        mockMvc.perform(withAuth(delete("/api/incidents/{id}", incidentId), adminToken))
+        mockMvc.perform(withAuth(delete("/api/incidents/{id}", incidentId)
+                        .contentType(MediaType.APPLICATION_JSON), adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Incident deleted successfully"));
 
-        mockMvc.perform(withAuth(delete("/api/admin/groups/{id}", deletableGroupId), adminToken))
+        mockMvc.perform(withAuth(delete("/api/admin/groups/{id}", deletableGroupId)
+                        .contentType(MediaType.APPLICATION_JSON), adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Group deleted successfully"));
 
-        mockMvc.perform(withAuth(delete("/api/admin/users/{id}", user2Id), adminToken))
+        mockMvc.perform(withAuth(delete("/api/admin/users/{id}", user2Id)
+                        .contentType(MediaType.APPLICATION_JSON), adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("User deleted successfully"));
 
@@ -147,7 +151,8 @@ class FullFlowsE2EIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Grup Caps Editat"));
 
-        mockMvc.perform(withAuth(post("/api/groups/join-by-code").param("code", joinCode), user2Token))
+        mockMvc.perform(withAuth(post("/api/groups/join-by-code").param("code", joinCode), user2Token)
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(managedGroupId));
 
@@ -170,15 +175,18 @@ class FullFlowsE2EIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.notes").value("Updated by user"));
 
-        mockMvc.perform(withAuth(post("/api/bookings/{id}/cancel", bookingId), user1Token))
+        mockMvc.perform(withAuth(post("/api/bookings/{id}/cancel", bookingId)
+                        .contentType(MediaType.APPLICATION_JSON), user1Token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CANCELLED"));
 
-        mockMvc.perform(withAuth(post("/api/groups/{id}/leave", managedGroupId), user2Token))
+        mockMvc.perform(withAuth(post("/api/groups/{id}/leave", managedGroupId)
+                        .contentType(MediaType.APPLICATION_JSON), user2Token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Left group successfully"));
 
-        mockMvc.perform(withAuth(delete("/api/groups/{id}", managedGroupId), user1Token))
+        mockMvc.perform(withAuth(delete("/api/groups/{id}", managedGroupId)
+                        .contentType(MediaType.APPLICATION_JSON), user1Token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Group deleted successfully"));
 
@@ -201,6 +209,221 @@ class FullFlowsE2EIntegrationTest {
                 .andExpect(status().isBadRequest());
 
         assertThat(userRepository.findById(user1Id)).isPresent();
+    }
+
+    @Test
+    void userRoleBoundary_shouldBeBlockedFromAllAdminEndpoints() throws Exception {
+        String adminToken = bootstrapAdminAndGetToken();
+                long facilityId = createFacility(adminToken, "Boundary Facility");
+        register("boundary@example.com", "Password123!");
+        String userToken = loginAndGetToken("boundary@example.com", "Password123!");
+                long userGroupId = createGroupByUser(userToken, "Boundary Group", "owned by user");
+                String joinCode = getGroupJoinCodeForUser(userToken, userGroupId);
+                long incidentId = createIncident(userToken, facilityId, "Boundary incident");
+
+        // USER cannot read admin dashboard
+        mockMvc.perform(withAuth(get("/api/admin/dashboard"), userToken))
+                .andExpect(status().isForbidden());
+
+        // USER cannot list all users (admin)
+        mockMvc.perform(withAuth(get("/api/admin/users"), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(put("/api/admin/users/{id}/active", 1L)
+                        .param("active", "false")
+                        .contentType(MediaType.APPLICATION_JSON), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(delete("/api/admin/users/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON), userToken))
+                .andExpect(status().isForbidden());
+
+        // USER cannot get valid-for-groups list (admin)
+        mockMvc.perform(withAuth(get("/api/users/valid-for-groups"), userToken))
+                .andExpect(status().isForbidden());
+
+        // USER cannot create/update/delete facilities (admin-only)
+        mockMvc.perform(withAuth(post("/api/facilities")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Unauthorized",
+                                "description", "desc",
+                                "type", "SPORT",
+                                "capacity", 10,
+                                "location", "Nowhere",
+                                "status", "ACTIVE"
+                        ))), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(put("/api/facilities/{id}", facilityId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Unauthorized update",
+                                "description", "desc",
+                                "type", "SPORT",
+                                "capacity", 12,
+                                "location", "Nowhere",
+                                "status", "ACTIVE"
+                        ))), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(delete("/api/facilities/{id}", facilityId)
+                        .contentType(MediaType.APPLICATION_JSON), userToken))
+                .andExpect(status().isForbidden());
+
+        // USER cannot access admin bookings nor global system bookings
+        mockMvc.perform(withAuth(get("/api/admin/bookings"), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(get("/api/bookings"), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(get("/api/admin/groups"), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(post("/api/admin/groups")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Admin only",
+                                "description", "blocked",
+                                "ownerId", 1
+                        ))), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(get("/api/admin/incidents"), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(put("/api/incidents/{id}/status", incidentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of("status", "RESOLVED"))), userToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(withAuth(delete("/api/incidents/{id}", incidentId)
+                        .contentType(MediaType.APPLICATION_JSON), userToken))
+                .andExpect(status().isForbidden());
+
+        // ADMIN cannot participate in user-only group actions (validateUserCanParticipate)
+        mockMvc.perform(withAuth(post("/api/groups")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Admin Group",
+                                "description", "should fail"
+                        ))), adminToken))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(withAuth(post("/api/groups/join-by-code")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("code", joinCode), adminToken))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void userOwnershipBoundary_shouldRejectEditingForeignBookingsAndGroups() throws Exception {
+        String adminToken = bootstrapAdminAndGetToken();
+        long facilityId = createFacility(adminToken, "Ownership Facility");
+
+        register("owner1@example.com", "Password123!");
+        register("owner2@example.com", "Password123!");
+        String user1Token = loginAndGetToken("owner1@example.com", "Password123!");
+        String user2Token = loginAndGetToken("owner2@example.com", "Password123!");
+
+        long groupId = createGroupByUser(user1Token, "Owned Group", "primary owner group");
+        String joinCode = getGroupJoinCodeForUser(user1Token, groupId);
+
+        mockMvc.perform(withAuth(post("/api/groups/join-by-code")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("code", joinCode), user2Token))
+                .andExpect(status().isOk());
+
+        LocalDateTime start = LocalDateTime.now().plusDays(3).withHour(10).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime end = start.plusHours(1);
+        long bookingId = createBookingByUser(user1Token, facilityId, groupId, start, end, "owned booking");
+
+        mockMvc.perform(withAuth(put("/api/bookings/{id}", bookingId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "facilityId", facilityId,
+                                "groupId", groupId,
+                                "startTime", start.plusHours(2).format(ISO),
+                                "endTime", end.plusHours(2).format(ISO),
+                                "notes", "user2 should not edit"
+                        ))), user2Token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("You can only edit your own bookings"));
+
+        mockMvc.perform(withAuth(post("/api/bookings/{id}/cancel", bookingId)
+                        .contentType(MediaType.APPLICATION_JSON), user2Token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("You can only cancel your own bookings"));
+
+        mockMvc.perform(withAuth(put("/api/groups/{id}", groupId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "name", "Hijacked Group",
+                                "description", "user2 should not edit"
+                        ))), user2Token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Only owner can edit this group"));
+
+        mockMvc.perform(withAuth(delete("/api/groups/{id}", groupId)
+                        .contentType(MediaType.APPLICATION_JSON), user2Token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Only owner can delete this group"));
+
+        mockMvc.perform(withAuth(post("/api/groups/{id}/leave", groupId)
+                        .contentType(MediaType.APPLICATION_JSON), user1Token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Owner cannot leave group. Delete the group instead."));
+    }
+
+    @Test
+    void userCredentialLifecycle_shouldCoverProfilePasswordAndAdminBoundary() throws Exception {
+        register("flow.user@example.com", "Password123!");
+        String userToken = loginAndGetToken("flow.user@example.com", "Password123!");
+
+        mockMvc.perform(withAuth(get("/api/users/me"), userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("flow.user@example.com"));
+
+        mockMvc.perform(withAuth(put("/api/users/me")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "email": "flow.user.updated@example.com"
+                                }
+                                """), userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("flow.user.updated@example.com"));
+
+                                String refreshedToken = loginAndGetToken("flow.user.updated@example.com", "Password123!");
+
+        mockMvc.perform(withAuth(put("/api/users/me/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "currentPassword": "Password123!",
+                                  "newPassword": "Password456!"
+                                }
+                                                                                                                                """), refreshedToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Password changed successfully"));
+
+        mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "email", "flow.user.updated@example.com",
+                                "password", "Password123!"
+                        ))))
+                .andExpect(status().isUnauthorized());
+
+        String updatedToken = loginAndGetToken("flow.user.updated@example.com", "Password456!");
+
+        int dashboardStatus = mockMvc.perform(withAuth(get("/api/admin/dashboard"), updatedToken))
+                .andReturn()
+                .getResponse()
+                .getStatus();
+
+        assertThat(dashboardStatus).isIn(401, 403);
     }
 
     private String bootstrapAdminAndGetToken() throws Exception {

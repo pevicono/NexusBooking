@@ -12,6 +12,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.example.nexusbooking.desktop.App;
 import com.google.gson.Gson;
@@ -240,7 +241,6 @@ class DesktopFlowsE2ETest extends ApplicationTest {
 
     @Test
     @Order(3)
-    @Disabled("Isolation mode: use incremental admin tests below")
     void userLoginRoutesToHomeDashboard() {
         openHomeAsUser();
         assertTrue(waitForNode("#upcomingCountLabel", 5), "Expected Home dashboard scene after user login");
@@ -249,7 +249,6 @@ class DesktopFlowsE2ETest extends ApplicationTest {
 
     @Test
     @Order(4)
-    @Disabled("Isolation mode: use incremental admin tests below")
     void adminLoginRoutesToBackoffice() {
         openBackofficeAsAdmin();
         assertTrue(waitForNode("#statsLabel", 5), "Expected Backoffice scene after admin login");
@@ -412,7 +411,7 @@ class DesktopFlowsE2ETest extends ApplicationTest {
     private boolean waitForNode(String selector, int timeoutSeconds) {
         long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(timeoutSeconds);
         while (System.currentTimeMillis() < deadline) {
-            if (lookup(selector).tryQuery().isPresent()) {
+            if (findNode(selector) != null) {
                 return true;
             }
             pauseMillis(150);
@@ -502,7 +501,10 @@ class DesktopFlowsE2ETest extends ApplicationTest {
 
     private void clickNode(String selector) {
         WaitForAsyncUtils.waitForFxEvents();
-        Node node = lookup(selector).query();
+        Node node = findNode(selector);
+        if (node == null) {
+            throw new AssertionError("Node not found: " + selector);
+        }
         try {
             clickOn(node);
         } catch (Exception ex) {
@@ -520,6 +522,39 @@ class DesktopFlowsE2ETest extends ApplicationTest {
             }
         });
         WaitForAsyncUtils.waitForFxEvents();
+    }
+
+    private Node findNode(String selector) {
+        WaitForAsyncUtils.waitForFxEvents();
+        var primaryMatch = lookup(selector).tryQuery();
+        if (primaryMatch.isPresent()) {
+            return primaryMatch.get();
+        }
+
+        AtomicReference<Node> fallbackMatch = new AtomicReference<>();
+        CountDownLatch latch = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            try {
+                for (Window window : Window.getWindows()) {
+                    if (!window.isShowing() || window.getScene() == null || window.getScene().getRoot() == null) {
+                        continue;
+                    }
+                    Node match = window.getScene().getRoot().lookup(selector);
+                    if (match != null) {
+                        fallbackMatch.set(match);
+                        break;
+                    }
+                }
+            } finally {
+                latch.countDown();
+            }
+        });
+        try {
+            latch.await(2, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
+        return fallbackMatch.get();
     }
 
     private void clickDialogConfirm() {

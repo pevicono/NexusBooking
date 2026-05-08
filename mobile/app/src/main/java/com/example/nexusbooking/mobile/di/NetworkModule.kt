@@ -2,6 +2,7 @@ package com.example.nexusbooking.mobile.di
 
 import com.example.nexusbooking.mobile.data.remote.ApiService
 import com.example.nexusbooking.mobile.data.remote.AuthInterceptor
+import com.example.nexusbooking.mobile.data.remote.SecurityHeadersInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
