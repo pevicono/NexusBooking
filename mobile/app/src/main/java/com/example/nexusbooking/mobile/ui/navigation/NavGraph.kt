@@ -7,8 +7,10 @@ import androidx.navigation.compose.composable
 import com.example.nexusbooking.mobile.ui.home.HomeScreen
 import com.example.nexusbooking.mobile.ui.login.LoginScreen
 import com.example.nexusbooking.mobile.ui.profile.ProfileScreen
+import com.example.nexusbooking.mobile.ui.splash.SplashScreen
 
 object Routes {
+    const val SPLASH = "splash"
     const val LOGIN = "login"
     const val HOME = "home"
     const val HOME_DASHBOARD = "home/dashboard"
@@ -27,8 +29,22 @@ enum class HomeTab {
 fun NavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN
+        startDestination = Routes.SPLASH
     ) {
+        composable(Routes.SPLASH) {
+            SplashScreen(
+                onLoggedIn = {
+                    navController.navigate(Routes.HOME_DASHBOARD) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                },
+                onLoggedOut = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginSuccess = {
@@ -158,6 +174,25 @@ fun NavGraph(navController: NavHostController) {
                 onLogout = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.HOME_FACILITIES) { inclusive = true }
+                    }
+                },
+                onNavigateToTab = { tab ->
+                    when (tab) {
+                        HomeTab.DASHBOARD -> navController.navigate(Routes.HOME_DASHBOARD) {
+                            popUpTo(Routes.PROFILE) { inclusive = true }
+                        }
+                        HomeTab.FACILITIES -> navController.navigate(Routes.HOME_FACILITIES) {
+                            popUpTo(Routes.PROFILE) { inclusive = true }
+                        }
+                        HomeTab.BOOKINGS -> navController.navigate(Routes.HOME_BOOKINGS) {
+                            popUpTo(Routes.PROFILE) { inclusive = true }
+                        }
+                        HomeTab.GROUPS -> navController.navigate(Routes.HOME_GROUPS) {
+                            popUpTo(Routes.PROFILE) { inclusive = true }
+                        }
+                        HomeTab.ADMIN -> navController.navigate(Routes.HOME_ADMIN) {
+                            popUpTo(Routes.PROFILE) { inclusive = true }
+                        }
                     }
                 }
             )

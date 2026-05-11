@@ -44,6 +44,7 @@
     <string name="create_group_button">Crear Grupo</string>
     <string name="join_group_title">Unirse a Grupo</string>
     <string name="group_code_label">Código del grupo</string>
+    <string name="select_group_label">Seleccionar grupo</string>
     <string name="join_button">Unir</string>
 
     <!-- Home Screen - Facilities Tab -->
@@ -81,7 +82,20 @@
     <string name="nav_facilities">Instalaciones</string>
     <string name="nav_admin">Admin</string>
 
+    <!-- Tab Titles -->
+    <string name="my_bookings">Mis reservas</string>
+    <string name="my_groups">Mis Grupos</string>
+    <string name="available_facilities">Instalaciones disponibles</string>
+    <string name="admin_panel">Panel de administración</string>
+
     <!-- Top App Bar -->
     <string name="app_title">NexusBooking</string>
     <string name="profile_button">Perfil</string>
+
+    <!-- Status Badges -->
+    <string name="status_available">Disponible</string>
+    <string name="status_booked">Reservado</string>
+    <string name="status_maintenance">Mantenimiento</string>
+    <string name="status_active">Activo</string>
+    <string name="status_inactive">Inactivo</string>
 </resources>

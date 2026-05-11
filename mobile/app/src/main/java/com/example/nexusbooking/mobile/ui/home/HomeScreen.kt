@@ -3,6 +3,7 @@ package com.example.nexusbooking.mobile.ui.home
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.DateRange
@@ -21,6 +24,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -41,8 +46,14 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nexusbooking.mobile.ui.theme.NexusBlueDark
+import com.example.nexusbooking.mobile.ui.theme.NexusBluePrimary
 import com.example.nexusbooking.mobile.R
 import com.example.nexusbooking.mobile.data.remote.dto.FacilityResponse
 import com.example.nexusbooking.mobile.data.remote.dto.GroupResponse
@@ -94,14 +105,40 @@ fun HomeScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             NexusTopAppBar(
-                title = stringResource(R.string.app_title),
+                titleContent = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.nexus_logo_nobg),
+                            contentDescription = "Nexus Logo",
+                            modifier = Modifier.size(40.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                        val titleText = buildAnnotatedString {
+                            withStyle(SpanStyle(color = NexusBlueDark)) {
+                                append("Nexus")
+                            }
+                            withStyle(SpanStyle(color = NexusBluePrimary)) {
+                                append("Booking")
+                            }
+                        }
+                        Text(
+                            text = titleText,
+                            style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                        )
+                    }
+                },
                 actions = {
                     NexusIconButton(
                         icon = Icons.Default.Person,
                         contentDescription = stringResource(R.string.profile_button),
                         onClick = onOpenProfile
                     )
-                }
+                },
+                centered = false
             )
         },
         bottomBar = {
@@ -147,14 +184,22 @@ fun HomeScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
+            val pageTitle = when (initialTab) {
+                HomeTab.DASHBOARD -> stringResource(R.string.greeting_hello, state.user?.email ?: "")
+                HomeTab.BOOKINGS -> "${stringResource(R.string.my_bookings)} (${state.bookings.size})"
+                HomeTab.GROUPS -> "${stringResource(R.string.my_groups)} (${state.groups.size})"
+                HomeTab.FACILITIES -> "${stringResource(R.string.available_facilities)} (${state.facilities.size})"
+                HomeTab.ADMIN -> stringResource(R.string.admin_panel)
+            }
+
             Text(
-                stringResource(R.string.greeting_hello, state.user?.email ?: ""),
+                pageTitle,
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
 
             when (initialTab) {
-                HomeTab.DASHBOARD -> DashboardTab(state)
+                HomeTab.DASHBOARD -> DashboardTab(state, onNavigateToTab)
                 HomeTab.FACILITIES -> FacilitiesTab(state)
                 HomeTab.BOOKINGS -> BookingsTab(state, viewModel)
                 HomeTab.GROUPS -> GroupsTab(state, viewModel)
@@ -165,7 +210,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun DashboardTab(state: HomeUiState) {
+private fun DashboardTab(state: HomeUiState, onNavigateToTab: (HomeTab) -> Unit) {
     androidx.compose.foundation.lazy.LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         item {
             NexusCard(modifier = Modifier.fillMaxWidth()) {
@@ -183,12 +228,14 @@ private fun DashboardTab(state: HomeUiState) {
                         StatCard(
                             label = stringResource(R.string.my_bookings_count),
                             value = state.bookings.size.toString(),
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            onClick = { onNavigateToTab(HomeTab.BOOKINGS) }
                         )
                         StatCard(
                             label = stringResource(R.string.my_groups_count),
                             value = state.groups.size.toString(),
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            onClick = { onNavigateToTab(HomeTab.GROUPS) }
                         )
                     }
                 }
@@ -208,7 +255,7 @@ private fun DashboardTab(state: HomeUiState) {
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(booking.facilityName, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
-                            NexusStatusBadge(booking.status)
+                            TranslatedStatusBadge(booking.status)
                         }
                         Text(booking.startTime.take(16), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                     }
@@ -225,8 +272,13 @@ private fun DashboardTab(state: HomeUiState) {
 }
 
 @Composable
-private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
-    NexusCard(modifier = modifier) {
+private fun StatCard(label: String, value: String, modifier: Modifier = Modifier, onClick: (() -> Unit)? = null) {
+    val cardModifier = if (onClick != null) {
+        modifier.then(Modifier.clickable { onClick() })
+    } else {
+        modifier
+    }
+    NexusCard(modifier = cardModifier) {
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp),
             horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
@@ -249,7 +301,7 @@ private fun FacilitiesTab(state: HomeUiState) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(facility.name, style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
-                        NexusStatusBadge(facility.status)
+                        TranslatedStatusBadge(facility.status)
                     }
                     Text("Tipo: ${facility.type}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                     Text("Capacidad: ${facility.capacity ?: 0} | Ubicación: ${facility.location ?: "-"}")
@@ -439,55 +491,126 @@ private fun BookingsTab(state: HomeUiState, viewModel: HomeViewModel) {
 
 @Composable
 private fun GroupsTab(state: HomeUiState, viewModel: HomeViewModel) {
+    var showCreateGroupForm by remember { mutableStateOf(false) }
+    var showJoinGroupForm by remember { mutableStateOf(false) }
+    var editingGroupId by remember { mutableStateOf<Long?>(null) }
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var joinCode by remember { mutableStateOf("") }
+    var selectedGroupToJoin by remember { mutableStateOf<GroupResponse?>(null) }
 
     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            NexusCard {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.create_group_title), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
-                    NexusTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = stringResource(R.string.group_name_label)
-                    )
-                    NexusTextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        label = stringResource(R.string.description_label)
-                    )
-                    NexusPrimaryButton(
-                        text = stringResource(R.string.create_group_button),
-                        onClick = { viewModel.createGroup(name, description) }
-                    )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                NexusPrimaryButton(
+                    text = "+ ${stringResource(R.string.create_group_title)}",
+                    onClick = { showCreateGroupForm = true },
+                    modifier = Modifier.weight(1f)
+                )
+                NexusPrimaryButton(
+                    text = "+ ${stringResource(R.string.join_group_title)}",
+                    onClick = { showJoinGroupForm = true },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        item {
+            AnimatedVisibility(
+                visible = showCreateGroupForm,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                NexusCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Text(stringResource(R.string.create_group_title), style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                            androidx.compose.material3.IconButton(
+                                onClick = { showCreateGroupForm = false },
+                                modifier = Modifier.weight(0.15f)
+                            ) {
+                                androidx.compose.material3.Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.close_button),
+                                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                        NexusTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            label = stringResource(R.string.group_name_label)
+                        )
+                        NexusTextField(
+                            value = description,
+                            onValueChange = { description = it },
+                            label = stringResource(R.string.description_label)
+                        )
+                        NexusPrimaryButton(
+                            text = stringResource(R.string.create_group_button),
+                            onClick = {
+                                viewModel.createGroup(name, description)
+                                showCreateGroupForm = false
+                                name = ""
+                                description = ""
+                            }
+                        )
+                    }
                 }
             }
         }
 
         item {
-            NexusCard {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(stringResource(R.string.join_group_title), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        NexusTextField(
-                            value = joinCode,
-                            onValueChange = { joinCode = it },
-                            label = stringResource(R.string.group_code_label),
-                            modifier = Modifier.weight(1f)
+            AnimatedVisibility(
+                visible = showJoinGroupForm,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                NexusCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Text(stringResource(R.string.join_group_title), style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                            androidx.compose.material3.IconButton(
+                                onClick = { showJoinGroupForm = false },
+                                modifier = Modifier.weight(0.15f)
+                            ) {
+                                androidx.compose.material3.Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.close_button),
+                                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                        NexusDropdown(
+                            label = stringResource(R.string.select_group_label),
+                            selectedItem = selectedGroupToJoin,
+                            items = state.groups,
+                            onItemSelected = { selectedGroupToJoin = it },
+                            itemLabel = { group ->
+                                "${group.name} - ${group.description ?: ""} (${group.memberCount} miembros)"
+                            },
+                            modifier = Modifier.fillMaxWidth()
                         )
-                        NexusSecondaryButton(
+                        NexusPrimaryButton(
                             text = stringResource(R.string.join_button),
                             onClick = {
-                                if (joinCode.isNotBlank()) {
-                                    viewModel.joinGroupByCode(joinCode)
+                                selectedGroupToJoin?.let { group ->
+                                    viewModel.joinGroup(group.id)
+                                    selectedGroupToJoin = null
+                                    showJoinGroupForm = false
                                 }
                             },
-                            modifier = Modifier.weight(0.8f)
+                            enabled = selectedGroupToJoin != null
                         )
                     }
                 }
@@ -495,22 +618,118 @@ private fun GroupsTab(state: HomeUiState, viewModel: HomeViewModel) {
         }
 
         items(state.groups) { group ->
-            NexusCard(modifier = Modifier.fillMaxWidth()) {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(group.name, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
-                    Text("${group.memberCount} miembros | Owner: ${group.ownerEmail}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
-                    if (group.members.isNotEmpty()) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                        Text("Miembros:", style = androidx.compose.material3.MaterialTheme.typography.labelMedium)
-                        group.members.take(4).forEach { member ->
-                            Text("• ${member.email}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+            AnimatedVisibility(
+                visible = editingGroupId == group.id,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                var editName by remember(group.id) { mutableStateOf(group.name) }
+                var editDescription by remember(group.id) { mutableStateOf(group.description ?: "") }
+
+                NexusCard {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Text("Editar Grupo", style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                            androidx.compose.material3.IconButton(
+                                onClick = { editingGroupId = null },
+                                modifier = Modifier.weight(0.15f)
+                            ) {
+                                androidx.compose.material3.Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.close_button),
+                                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                        NexusTextField(
+                            value = editName,
+                            onValueChange = { editName = it },
+                            label = stringResource(R.string.group_name_label),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        NexusTextField(
+                            value = editDescription,
+                            onValueChange = { editDescription = it },
+                            label = stringResource(R.string.description_label),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            NexusSecondaryButton(
+                                text = stringResource(R.string.cancel_button),
+                                onClick = { editingGroupId = null },
+                                modifier = Modifier.weight(1f)
+                            )
+                            NexusPrimaryButton(
+                                text = stringResource(R.string.save_button),
+                                onClick = {
+                                    // TODO: Implement updateGroup in backend and viewModel
+                                    editingGroupId = null
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
-                    if (state.user?.id != group.ownerId) {
-                        NexusSecondaryButton(
-                            text = "Salir del grupo",
-                            onClick = { viewModel.leaveGroup(group.id) }
-                        )
+                }
+            }
+        }
+
+        items(state.groups) { group ->
+            var showMembers by remember(group.id) { mutableStateOf(false) }
+
+            NexusCard(modifier = Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    ) {
+                        Text(group.name, style = androidx.compose.material3.MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            if (state.user?.id == group.ownerId) {
+                                androidx.compose.material3.IconButton(onClick = { editingGroupId = group.id }) {
+                                    Icon(Icons.Default.Edit, contentDescription = "Editar grupo", modifier = Modifier.size(20.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                            if (state.user?.id != group.ownerId) {
+                                androidx.compose.material3.IconButton(onClick = { viewModel.leaveGroup(group.id) }) {
+                                    Icon(Icons.Default.Logout, contentDescription = "Salir del grupo", modifier = Modifier.size(20.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.error)
+                                }
+                            }
+                        }
+                    }
+                    if (!group.description.isNullOrEmpty()) {
+                        Text(group.description, style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showMembers = !showMembers },
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Group, contentDescription = null, modifier = Modifier.size(16.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                        Text("${group.memberCount} miembros", style = androidx.compose.material3.MaterialTheme.typography.bodySmall, modifier = Modifier.padding(start = 4.dp))
+                        Text("| Owner: ${group.ownerEmail}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    }
+                    AnimatedVisibility(visible = showMembers) {
+                        if (group.members.isNotEmpty()) {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                                Text("Miembros:", style = androidx.compose.material3.MaterialTheme.typography.labelMedium)
+                                group.members.take(4).forEach { member ->
+                                    Text("• ${member.email}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -619,13 +838,26 @@ private fun AdminTab(state: HomeUiState, viewModel: HomeViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(user.email, style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
-                        NexusStatusBadge(if (user.active) "ACTIVO" else "INACTIVO")
+                        TranslatedStatusBadge(if (user.active) "ACTIVO" else "INACTIVO")
                     }
                     Text("${user.role} | #${user.id}", style = androidx.compose.material3.MaterialTheme.typography.labelSmall)
                 }
             }
         }
     }
+}
+
+@Composable
+private fun TranslatedStatusBadge(status: String, modifier: Modifier = Modifier) {
+    val translatedStatus = when (status.uppercase()) {
+        "AVAILABLE" -> stringResource(R.string.status_available)
+        "BOOKED" -> stringResource(R.string.status_booked)
+        "MAINTENANCE" -> stringResource(R.string.status_maintenance)
+        "ACTIVO" -> stringResource(R.string.status_active)
+        "INACTIVO" -> stringResource(R.string.status_inactive)
+        else -> status
+    }
+    NexusStatusBadge(translatedStatus, modifier)
 }
 
 private fun defaultStartTime(): String {

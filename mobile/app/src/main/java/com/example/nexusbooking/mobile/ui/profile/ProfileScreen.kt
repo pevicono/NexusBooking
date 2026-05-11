@@ -1,14 +1,25 @@
 package com.example.nexusbooking.mobile.ui.profile
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.nexusbooking.mobile.R
@@ -19,10 +30,15 @@ import com.example.nexusbooking.mobile.ui.components.NexusPrimaryButton
 import com.example.nexusbooking.mobile.ui.components.NexusSecondaryButton
 import com.example.nexusbooking.mobile.ui.components.NexusTextField
 import com.example.nexusbooking.mobile.ui.components.NexusTopAppBar
+import com.example.nexusbooking.mobile.ui.navigation.HomeTab
+import com.example.nexusbooking.mobile.ui.theme.NexusBlueDark
+import com.example.nexusbooking.mobile.ui.theme.NexusBluePrimary
 
 @Composable
 fun ProfileScreen(
     onLogout: () -> Unit,
+    onNavigateToTab: (HomeTab) -> Unit,
+    currentTab: HomeTab = HomeTab.DASHBOARD,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -35,15 +51,77 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             NexusTopAppBar(
-                title = stringResource(R.string.profile_title),
+                titleContent = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.nexus_logo_nobg),
+                            contentDescription = "Nexus Logo",
+                            modifier = Modifier.size(40.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                        val titleText = buildAnnotatedString {
+                            withStyle(SpanStyle(color = NexusBlueDark)) {
+                                append("Nexus")
+                            }
+                            withStyle(SpanStyle(color = NexusBluePrimary)) {
+                                append("Booking")
+                            }
+                        }
+                        Text(
+                            text = titleText,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                },
                 actions = {
                     NexusIconButton(
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
                         contentDescription = stringResource(R.string.logout_label),
                         onClick = { viewModel.logout() }
                     )
-                }
+                },
+                centered = false
             )
+        },
+        bottomBar = {
+            NavigationBar {
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Dashboard, stringResource(R.string.nav_dashboard)) },
+                    label = { Text(stringResource(R.string.nav_dashboard)) },
+                    selected = false,
+                    onClick = { onNavigateToTab(HomeTab.DASHBOARD) }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.DateRange, stringResource(R.string.nav_bookings)) },
+                    label = { Text(stringResource(R.string.nav_bookings)) },
+                    selected = false,
+                    onClick = { onNavigateToTab(HomeTab.BOOKINGS) }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.Group, stringResource(R.string.nav_groups)) },
+                    label = { Text(stringResource(R.string.nav_groups)) },
+                    selected = false,
+                    onClick = { onNavigateToTab(HomeTab.GROUPS) }
+                )
+                NavigationBarItem(
+                    icon = { Icon(Icons.Default.LocationOn, stringResource(R.string.nav_facilities)) },
+                    label = { Text(stringResource(R.string.nav_facilities)) },
+                    selected = false,
+                    onClick = { onNavigateToTab(HomeTab.FACILITIES) }
+                )
+                if (state.user?.role == "ADMIN") {
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Settings, stringResource(R.string.nav_admin)) },
+                        label = { Text(stringResource(R.string.nav_admin)) },
+                        selected = false,
+                        onClick = { onNavigateToTab(HomeTab.ADMIN) }
+                    )
+                }
+            }
         }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -53,9 +131,15 @@ fun ProfileScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(24.dp),
+                        .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    Text(
+                        stringResource(R.string.profile_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
                     AnimatedContent(targetState = activePane, label = "profilePane") { pane ->
                         when (pane) {
                             ProfilePane.VIEW -> ViewPane(state, onEdit = { activePane = ProfilePane.EDIT })
@@ -94,17 +178,23 @@ fun ProfileScreen(
 @Composable
 private fun ViewPane(state: ProfileUiState, onEdit: () -> Unit) {
     val user = state.user ?: return
-    NexusCard(modifier = Modifier.fillMaxWidth()) {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.account_info), style = MaterialTheme.typography.titleMedium)
-            ProfileField(label = "Email", value = user.email)
-            ProfileField(label = stringResource(R.string.role_label), value = user.role)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        NexusCard(modifier = Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(stringResource(R.string.account_info), style = MaterialTheme.typography.titleMedium)
+                ProfileField(label = "Email", value = user.email)
+                ProfileField(label = stringResource(R.string.role_label), value = user.role)
+            }
         }
+        NexusPrimaryButton(
+            text = stringResource(R.string.edit_profile_button),
+            onClick = onEdit,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
-    NexusPrimaryButton(
-        text = stringResource(R.string.edit_profile_button),
-        onClick = onEdit
-    )
 }
 
 @Composable
