@@ -1,12 +1,18 @@
 package com.example.nexusbooking.mobile.data.repository
 
+import android.util.Log
 import com.example.nexusbooking.mobile.data.remote.ApiService
 import com.example.nexusbooking.mobile.data.remote.dto.BookingRequest
 import com.example.nexusbooking.mobile.data.remote.dto.BookingResponse
+import com.example.nexusbooking.mobile.data.remote.dto.FacilityRequest
 import com.example.nexusbooking.mobile.data.remote.dto.FacilityResponse
 import com.example.nexusbooking.mobile.data.remote.dto.GroupRequest
 import com.example.nexusbooking.mobile.data.remote.dto.GroupResponse
+import com.example.nexusbooking.mobile.data.remote.dto.IncidentRequest
+import com.example.nexusbooking.mobile.data.remote.dto.IncidentResponse
+import com.example.nexusbooking.mobile.data.remote.dto.UserResponse
 import com.example.nexusbooking.mobile.util.Resource
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,7 +38,21 @@ class HomeRepository @Inject constructor(
         api.createBooking(request)
     }.fold(
         onSuccess = { Resource.Success(it) },
-        onFailure = { Resource.Error(it.message ?: "Error creant reserva") }
+        onFailure = { throwable ->
+            val errorMessage = when (throwable) {
+                is HttpException -> {
+                    val errorBody = throwable.response()?.errorBody()?.string() ?: ""
+                    val message = "HTTP ${throwable.code()}: $errorBody"
+                    Log.e("HomeRepository", message)
+                    message
+                }
+                else -> {
+                    Log.e("HomeRepository", "Error creating booking", throwable)
+                    throwable.message ?: "Error creant reserva"
+                }
+            }
+            Resource.Error(errorMessage)
+        }
     )
 
     suspend fun cancelBooking(bookingId: Long): Resource<BookingResponse> = runCatching {
@@ -75,5 +95,33 @@ class HomeRepository @Inject constructor(
     }.fold(
         onSuccess = { Resource.Success(Unit) },
         onFailure = { Resource.Error(it.message ?: "Error sortint del grup") }
+    )
+
+    suspend fun getAllUsers(): Resource<List<UserResponse>> = runCatching {
+        api.getAdminUsers()
+    }.fold(
+        onSuccess = { Resource.Success(it) },
+        onFailure = { Resource.Error(it.message ?: "Error carregant usuaris") }
+    )
+
+    suspend fun setUserActive(userId: Long, active: Boolean): Resource<UserResponse> = runCatching {
+        api.setUserActive(userId, active)
+    }.fold(
+        onSuccess = { Resource.Success(it) },
+        onFailure = { Resource.Error(it.message ?: "Error actualitzant usuari") }
+    )
+
+    suspend fun createFacility(name: String, type: String, capacity: Int): Resource<FacilityResponse> = runCatching {
+        api.createFacility(FacilityRequest(name, "", type, capacity, ""))
+    }.fold(
+        onSuccess = { Resource.Success(it) },
+        onFailure = { Resource.Error(it.message ?: "Error creant instal·lació") }
+    )
+
+    suspend fun createIncident(title: String, description: String): Resource<IncidentResponse> = runCatching {
+        api.createIncident(IncidentRequest(title = title, description = description))
+    }.fold(
+        onSuccess = { Resource.Success(it) },
+        onFailure = { Resource.Error(it.message ?: "Error creant incidència") }
     )
 }

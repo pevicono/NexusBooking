@@ -9,24 +9,32 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = NexusBlueLight,
-    secondary = NexusBlue,
-    tertiary = NexusSuccess
+    primary = NexusBluePrimary,
+    secondary = NexusBlueLight,
+    tertiary = NexusSuccess,
+    background = NexusBlueDark,
+    surface = Color(0xFF162555),
+    onPrimary = NexusWhite,
+    onSecondary = NexusWhite,
+    onBackground = NexusGreyLight,
+    onSurface = NexusGreyLight,
+    error = NexusError
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = NexusBlue,
+    primary = NexusBluePrimary,
     secondary = NexusBlueLight,
     tertiary = NexusSuccess,
-    background = NexusSurface,
-    surface = NexusCard,
-    onPrimary = NexusCard,
-    onSecondary = NexusCard,
-    onBackground = NexusText,
-    onSurface = NexusText,
+    background = NexusGreyLight,
+    surface = NexusWhite,
+    onPrimary = NexusWhite,
+    onSecondary = NexusWhite,
+    onBackground = NexusBlueDark,
+    onSurface = NexusBlueDark,
     error = NexusError
 )
 
@@ -49,6 +57,7 @@ fun NexusBookingTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = NexusShapes,
         content = content
     )
 }

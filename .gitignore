@@ -8,3 +8,6 @@ backend/target/
 
 # Ignore Visual Studio settings
 .vs/
+
+#Ignore mobile/.idea
+mobile/.idea/

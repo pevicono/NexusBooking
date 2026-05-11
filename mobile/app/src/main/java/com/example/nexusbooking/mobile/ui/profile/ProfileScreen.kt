@@ -1,18 +1,23 @@
 package com.example.nexusbooking.mobile.ui.profile
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nexusbooking.mobile.ui.components.LoadingOverlay
+import com.example.nexusbooking.mobile.ui.components.NexusCard
+import com.example.nexusbooking.mobile.ui.components.NexusIconButton
+import com.example.nexusbooking.mobile.ui.components.NexusPrimaryButton
+import com.example.nexusbooking.mobile.ui.components.NexusSecondaryButton
+import com.example.nexusbooking.mobile.ui.components.NexusTextField
+import com.example.nexusbooking.mobile.ui.components.NexusTopAppBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onLogout: () -> Unit,
@@ -27,19 +32,21 @@ fun ProfileScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Mi perfil") },
+            NexusTopAppBar(
+                title = "Mi Perfil",
                 actions = {
-                    IconButton(onClick = { viewModel.logout() }) {
-                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión")
-                    }
+                    NexusIconButton(
+                        icon = Icons.AutoMirrored.Filled.ExitToApp,
+                        contentDescription = "Cerrar sesión",
+                        onClick = { viewModel.logout() }
+                    )
                 }
             )
         }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             if (state.isLoading && state.user == null) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                LoadingOverlay()
             } else {
                 Column(
                     modifier = Modifier
@@ -47,33 +54,33 @@ fun ProfileScreen(
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    when (activePane) {
-                        ProfilePane.VIEW -> ViewPane(state, onEdit = { activePane = ProfilePane.EDIT })
-                        ProfilePane.EDIT -> EditPane(
-                            state = state,
-                            onSave = { newEmail ->
-                                viewModel.updateEmail(newEmail)
-                                activePane = ProfilePane.VIEW
-                            },
-                            onCancel = { activePane = ProfilePane.VIEW },
-                            onChangePassword = { activePane = ProfilePane.CHANGE_PASSWORD }
-                        )
-                        ProfilePane.CHANGE_PASSWORD -> ChangePasswordPane(
-                            state = state,
-                            onSave = { current, new ->
-                                viewModel.changePassword(current, new)
-                                activePane = ProfilePane.VIEW
-                            },
-                            onBack = { activePane = ProfilePane.EDIT }
-                        )
+                    AnimatedContent(targetState = activePane, label = "profilePane") { pane ->
+                        when (pane) {
+                            ProfilePane.VIEW -> ViewPane(state, onEdit = { activePane = ProfilePane.EDIT })
+                            ProfilePane.EDIT -> EditPane(
+                                state = state,
+                                onSave = { newEmail ->
+                                    viewModel.updateEmail(newEmail)
+                                    activePane = ProfilePane.VIEW
+                                },
+                                onCancel = { activePane = ProfilePane.VIEW },
+                                onChangePassword = { activePane = ProfilePane.CHANGE_PASSWORD }
+                            )
+                            ProfilePane.CHANGE_PASSWORD -> ChangePasswordPane(
+                                state = state,
+                                onSave = { current, new ->
+                                    viewModel.changePassword(current, new)
+                                    activePane = ProfilePane.VIEW
+                                },
+                                onBack = { activePane = ProfilePane.EDIT }
+                            )
+                        }
                     }
 
                     state.error?.let {
-                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                         LaunchedEffect(it) { viewModel.clearMessages() }
                     }
                     state.successMessage?.let {
-                        Text(it, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall)
                         LaunchedEffect(it) { viewModel.clearMessages() }
                     }
                 }
@@ -85,19 +92,17 @@ fun ProfileScreen(
 @Composable
 private fun ViewPane(state: ProfileUiState, onEdit: () -> Unit) {
     val user = state.user ?: return
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    NexusCard(modifier = Modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Información de cuenta", style = MaterialTheme.typography.titleMedium)
             ProfileField(label = "Email", value = user.email)
-            // Debug only
-            // ProfileField(label = "Rol", value = user.role)
-            // ProfileField(label = "ID", value = user.id.toString())
+            ProfileField(label = "Rol", value = user.role)
         }
     }
-    Button(onClick = onEdit, modifier = Modifier.fillMaxWidth()) {
-        Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
-        Spacer(Modifier.width(8.dp))
-        Text("Editar perfil")
-    }
+    NexusPrimaryButton(
+        text = "Editar Perfil",
+        onClick = onEdit
+    )
 }
 
 @Composable
@@ -110,28 +115,40 @@ private fun EditPane(
     var email by remember(state.user?.email) { mutableStateOf(state.user?.email ?: "") }
     var validationError by remember { mutableStateOf<String?>(null) }
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it; validationError = null },
-            label = { Text("Nuevo email") },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-        validationError?.let {
-            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        NexusCard {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Cambiar Email", style = MaterialTheme.typography.titleMedium)
+                NexusTextField(
+                    value = email,
+                    onValueChange = { email = it; validationError = null },
+                    label = "Nuevo email",
+                    isError = validationError != null,
+                    errorMessage = validationError
+                )
+            }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Cancelar") }
-            Button(
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            NexusSecondaryButton(
+                text = "Cancelar",
+                onClick = onCancel,
+                modifier = Modifier.weight(1f)
+            )
+            NexusPrimaryButton(
+                text = "Guardar",
                 onClick = {
                     if (email.isBlank()) validationError = "El email no puede estar vacío"
                     else onSave(email)
                 },
-                enabled = !state.isLoading,
+                isLoading = state.isLoading,
                 modifier = Modifier.weight(1f)
-            ) { Text("Guardar") }
+            )
         }
+
         TextButton(onClick = onChangePassword, modifier = Modifier.fillMaxWidth()) {
             Text("Cambiar contraseña")
         }
@@ -149,37 +166,44 @@ private fun ChangePasswordPane(
     var confirm by remember { mutableStateOf("") }
     var validationError by remember { mutableStateOf<String?>(null) }
 
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedTextField(
-            value = current,
-            onValueChange = { current = it; validationError = null },
-            label = { Text("Contraseña actual") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = new,
-            onValueChange = { new = it; validationError = null },
-            label = { Text("Nueva contraseña") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = confirm,
-            onValueChange = { confirm = it; validationError = null },
-            label = { Text("Confirmar contraseña") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-        validationError?.let {
-            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        NexusCard {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Cambiar Contraseña", style = MaterialTheme.typography.titleMedium)
+                NexusTextField(
+                    value = current,
+                    onValueChange = { current = it; validationError = null },
+                    label = "Contraseña actual",
+                    isPassword = true
+                )
+                NexusTextField(
+                    value = new,
+                    onValueChange = { new = it; validationError = null },
+                    label = "Nueva contraseña",
+                    isPassword = true
+                )
+                NexusTextField(
+                    value = confirm,
+                    onValueChange = { confirm = it; validationError = null },
+                    label = "Confirmar contraseña",
+                    isPassword = true,
+                    isError = validationError != null,
+                    errorMessage = validationError
+                )
+            }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) { Text("Atrás") }
-            Button(
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            NexusSecondaryButton(
+                text = "Atrás",
+                onClick = onBack,
+                modifier = Modifier.weight(1f)
+            )
+            NexusPrimaryButton(
+                text = "Guardar",
                 onClick = {
                     when {
                         current.isBlank() || new.isBlank() || confirm.isBlank() ->
@@ -191,18 +215,22 @@ private fun ChangePasswordPane(
                         else -> onSave(current, new)
                     }
                 },
-                enabled = !state.isLoading,
+                isLoading = state.isLoading,
                 modifier = Modifier.weight(1f)
-            ) { Text("Guardar") }
+            )
         }
     }
 }
 
 @Composable
 private fun ProfileField(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyMedium)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(label, style = MaterialTheme.typography.bodyMedium)
+        Text(value, style = MaterialTheme.typography.bodySmall)
     }
 }
 

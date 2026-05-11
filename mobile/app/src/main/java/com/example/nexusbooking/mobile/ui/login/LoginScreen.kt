@@ -1,16 +1,15 @@
 package com.example.nexusbooking.mobile.ui.login
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nexusbooking.mobile.ui.components.NexusPrimaryButton
+import com.example.nexusbooking.mobile.ui.components.NexusTextField
 
 @Composable
 fun LoginScreen(
@@ -41,8 +40,9 @@ fun LoginScreen(
     ) {
         Text(
             text = "NexusBooking",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 32.dp)
+            style = MaterialTheme.typography.displaySmall,
+            modifier = Modifier.padding(bottom = 48.dp),
+            color = MaterialTheme.colorScheme.primary
         )
 
         TabRow(selectedTabIndex = selectedTab) {
@@ -54,15 +54,17 @@ fun LoginScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        if (selectedTab == 0) {
+        AnimatedVisibility(selectedTab == 0) {
             LoginForm(
                 isLoading = loginState.isLoading,
                 error = loginState.error,
                 onLogin = { email, password -> viewModel.login(email, password) }
             )
-        } else {
+        }
+
+        AnimatedVisibility(selectedTab == 1) {
             RegisterForm(
                 isLoading = registerState.isLoading,
                 error = registerState.error,
@@ -82,30 +84,24 @@ private fun LoginForm(
     var password by remember { mutableStateOf("") }
     var validationError by remember { mutableStateOf<String?>(null) }
 
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedTextField(
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        NexusTextField(
             value = email,
             onValueChange = { email = it; validationError = null },
-            label = { Text("Email") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth()
+            label = "Email",
+            isError = validationError != null || error != null,
+            errorMessage = validationError ?: error
         )
-        OutlinedTextField(
+        NexusTextField(
             value = password,
             onValueChange = { password = it; validationError = null },
-            label = { Text("Contraseña") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            label = "Contraseña",
+            isPassword = true,
+            isError = false
         )
 
-        val displayError = validationError ?: error
-        if (displayError != null) {
-            Text(displayError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
-
-        Button(
+        NexusPrimaryButton(
+            text = "Entrar",
             onClick = {
                 if (email.isBlank() || password.isBlank()) {
                     validationError = "Completa todos los campos"
@@ -113,12 +109,8 @@ private fun LoginForm(
                     onLogin(email, password)
                 }
             },
-            enabled = !isLoading,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-            else Text("Entrar")
-        }
+            isLoading = isLoading
+        )
     }
 }
 
@@ -133,54 +125,41 @@ private fun RegisterForm(
     var confirmPassword by remember { mutableStateOf("") }
     var validationError by remember { mutableStateOf<String?>(null) }
 
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedTextField(
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        NexusTextField(
             value = email,
             onValueChange = { email = it; validationError = null },
-            label = { Text("Email") },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth()
+            label = "Email",
+            isError = validationError != null || error != null,
+            errorMessage = validationError ?: error
         )
-        OutlinedTextField(
+        NexusTextField(
             value = password,
             onValueChange = { password = it; validationError = null },
-            label = { Text("Contraseña") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            label = "Contraseña",
+            isPassword = true
         )
-        OutlinedTextField(
+        NexusTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it; validationError = null },
-            label = { Text("Confirmar contraseña") },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            label = "Confirmar contraseña",
+            isPassword = true
         )
 
-        val displayError = validationError ?: error
-        if (displayError != null) {
-            Text(displayError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
-
-        Button(
+        NexusPrimaryButton(
+            text = "Crear cuenta",
             onClick = {
                 when {
                     email.isBlank() || password.isBlank() || confirmPassword.isBlank() ->
                         validationError = "Completa todos los campos"
                     password.length < 6 ->
-                        validationError = "La contraseña debe tener al menos 6 caracteres"
+                        validationError = "Mínimo 6 caracteres"
                     password != confirmPassword ->
                         validationError = "Las contraseñas no coinciden"
                     else -> onRegister(email, password)
                 }
             },
-            enabled = !isLoading,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-            else Text("Crear cuenta")
-        }
+            isLoading = isLoading
+        )
     }
 }
