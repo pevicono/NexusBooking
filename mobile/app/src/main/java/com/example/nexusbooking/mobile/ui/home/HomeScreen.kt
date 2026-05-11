@@ -9,21 +9,22 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.SnackbarDuration
@@ -39,8 +40,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nexusbooking.mobile.R
 import com.example.nexusbooking.mobile.data.remote.dto.FacilityResponse
 import com.example.nexusbooking.mobile.data.remote.dto.GroupResponse
 import com.example.nexusbooking.mobile.ui.components.NexusCard
@@ -91,11 +94,11 @@ fun HomeScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             NexusTopAppBar(
-                title = "NexusBooking",
+                title = stringResource(R.string.app_title),
                 actions = {
                     NexusIconButton(
                         icon = Icons.Default.Person,
-                        contentDescription = "Perfil",
+                        contentDescription = stringResource(R.string.profile_button),
                         onClick = onOpenProfile
                     )
                 }
@@ -104,33 +107,33 @@ fun HomeScreen(
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, "Dashboard") },
-                    label = { Text("Dashboard") },
+                    icon = { Icon(Icons.Default.Dashboard, stringResource(R.string.nav_dashboard)) },
+                    label = { Text(stringResource(R.string.nav_dashboard)) },
                     selected = initialTab == HomeTab.DASHBOARD,
                     onClick = { onNavigateToTab(HomeTab.DASHBOARD) }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.DateRange, "Reservas") },
-                    label = { Text("Reservas") },
+                    icon = { Icon(Icons.Default.DateRange, stringResource(R.string.nav_bookings)) },
+                    label = { Text(stringResource(R.string.nav_bookings)) },
                     selected = initialTab == HomeTab.BOOKINGS,
                     onClick = { onNavigateToTab(HomeTab.BOOKINGS) }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.Favorite, "Grupos") },
-                    label = { Text("Grupos") },
+                    icon = { Icon(Icons.Default.Group, stringResource(R.string.nav_groups)) },
+                    label = { Text(stringResource(R.string.nav_groups)) },
                     selected = initialTab == HomeTab.GROUPS,
                     onClick = { onNavigateToTab(HomeTab.GROUPS) }
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Default.LocationOn, "Instalaciones") },
-                    label = { Text("Instalaciones") },
+                    icon = { Icon(Icons.Default.LocationOn, stringResource(R.string.nav_facilities)) },
+                    label = { Text(stringResource(R.string.nav_facilities)) },
                     selected = initialTab == HomeTab.FACILITIES,
                     onClick = { onNavigateToTab(HomeTab.FACILITIES) }
                 )
                 if (state.user?.role == "ADMIN") {
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.Settings, "Admin") },
-                        label = { Text("Admin") },
+                        icon = { Icon(Icons.Default.Settings, stringResource(R.string.nav_admin)) },
+                        label = { Text(stringResource(R.string.nav_admin)) },
                         selected = initialTab == HomeTab.ADMIN,
                         onClick = { onNavigateToTab(HomeTab.ADMIN) }
                     )
@@ -145,7 +148,7 @@ fun HomeScreen(
                 .padding(16.dp)
         ) {
             Text(
-                "¡Hola, ${state.user?.email ?: ""}!",
+                stringResource(R.string.greeting_hello, state.user?.email ?: ""),
                 style = androidx.compose.material3.MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
@@ -167,23 +170,23 @@ private fun DashboardTab(state: HomeUiState) {
         item {
             NexusCard(modifier = Modifier.fillMaxWidth()) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Resumen", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.dashboard_summary), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+//                        StatCard(
+//                            label = stringResource(R.string.facilities_count),
+//                            value = state.facilities.size.toString(),
+//                            modifier = Modifier.weight(1f)
+//                        )
                         StatCard(
-                            label = "Instalaciones",
-                            value = state.facilities.size.toString(),
-                            modifier = Modifier.weight(1f)
-                        )
-                        StatCard(
-                            label = "Mis Reservas",
+                            label = stringResource(R.string.my_bookings_count),
                             value = state.bookings.size.toString(),
                             modifier = Modifier.weight(1f)
                         )
                         StatCard(
-                            label = "Mis Grupos",
+                            label = stringResource(R.string.my_groups_count),
                             value = state.groups.size.toString(),
                             modifier = Modifier.weight(1f)
                         )
@@ -193,7 +196,7 @@ private fun DashboardTab(state: HomeUiState) {
         }
 
         item {
-            Text("Próximas Reservas", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.upcoming_bookings), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
         }
 
         if (state.bookings.isNotEmpty()) {
@@ -214,26 +217,7 @@ private fun DashboardTab(state: HomeUiState) {
         } else {
             item {
                 NexusCard(modifier = Modifier.fillMaxWidth()) {
-                    Text("No hay reservas próximas", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
-                }
-            }
-        }
-
-        item {
-            Text("Instalaciones Disponibles", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
-        }
-
-        items(state.facilities.take(3)) { facility ->
-            NexusCard(modifier = Modifier.fillMaxWidth()) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(facility.name, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
-                        NexusStatusBadge(facility.status)
-                    }
-                    Text("Cap: ${facility.capacity ?: 0} | Tipo: ${facility.type}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.no_upcoming_bookings), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -320,7 +304,7 @@ private fun BookingsTab(state: HomeUiState, viewModel: HomeViewModel) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                         ) {
-                            Text("Nueva Reserva", style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                            Text(stringResource(R.string.new_booking_title), style = androidx.compose.material3.MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                             androidx.compose.material3.IconButton(
                                 onClick = { showNewReservationForm = false },
                                 modifier = Modifier.weight(0.15f)
@@ -333,7 +317,7 @@ private fun BookingsTab(state: HomeUiState, viewModel: HomeViewModel) {
                             }
                         }
                         NexusDropdown(
-                            label = "Instalación",
+                            label = stringResource(R.string.facility_label),
                             selectedItem = selectedFacility,
                             items = activeFacilities,
                             onItemSelected = { selectedFacility = it },
@@ -341,7 +325,7 @@ private fun BookingsTab(state: HomeUiState, viewModel: HomeViewModel) {
                             modifier = Modifier.fillMaxWidth()
                         )
                         NexusDropdown(
-                            label = "Grupo",
+                            label = stringResource(R.string.group_label),
                             selectedItem = selectedGroup,
                             items = state.groups,
                             onItemSelected = { selectedGroup = it },
@@ -349,7 +333,7 @@ private fun BookingsTab(state: HomeUiState, viewModel: HomeViewModel) {
                             modifier = Modifier.fillMaxWidth()
                         )
                         NexusDatePicker(
-                            label = "Día",
+                            label = stringResource(R.string.day_label),
                             selectedDate = selectedDay,
                             onDateSelected = { selectedDay = it },
                             modifier = Modifier.fillMaxWidth()
@@ -359,14 +343,14 @@ private fun BookingsTab(state: HomeUiState, viewModel: HomeViewModel) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             NexusTimePicker(
-                                label = "Inicio",
+                                label = stringResource(R.string.start_time_label),
                                 onTimeSelected = { hour, minute ->
                                     selectedStartTime = String.format("%02d:%02d", hour, minute)
                                 },
                                 modifier = Modifier.weight(1f)
                             )
                             NexusTimePicker(
-                                label = "Fin",
+                                label = stringResource(R.string.end_time_label),
                                 onTimeSelected = { hour, minute ->
                                     selectedEndTime = String.format("%02d:%02d", hour, minute)
                                 },
@@ -376,11 +360,11 @@ private fun BookingsTab(state: HomeUiState, viewModel: HomeViewModel) {
                         NexusTextArea(
                             value = notes,
                             onValueChange = { notes = it },
-                            label = "Notas",
+                            label = stringResource(R.string.notes_label),
                             modifier = Modifier.fillMaxWidth()
                         )
                         NexusPrimaryButton(
-                            text = "Crear Reserva",
+                            text = stringResource(R.string.create_booking_button),
                             onClick = {
                                 val fId = selectedFacility?.id ?: return@NexusPrimaryButton
                                 val gId = selectedGroup?.id ?: return@NexusPrimaryButton
@@ -399,15 +383,54 @@ private fun BookingsTab(state: HomeUiState, viewModel: HomeViewModel) {
 
         items(state.bookings) { booking ->
             NexusCard(modifier = Modifier.fillMaxWidth()) {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                     ) {
-                        Text("#${booking.id} - ${booking.facilityName}", style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Text("#${booking.id}", style = androidx.compose.material3.MaterialTheme.typography.labelSmall)
+                            Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                            Text(booking.facilityName, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
+                        }
                         NexusStatusBadge(booking.status)
                     }
-                    Text("${booking.startTime} → ${booking.endTime}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Group, contentDescription = null, modifier = Modifier.size(16.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                        Text(booking.groupName ?: "-", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    }
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    ) {
+                        val startDateTime = try {
+                            java.time.LocalDateTime.parse(booking.startTime, java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+                        } catch (e: Exception) {
+                            null
+                        }
+                        val formattedDate = startDateTime?.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: booking.startTime.take(10)
+                        val startHour = startDateTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: booking.startTime.substring(11, 16)
+                        val endHour = try {
+                            java.time.LocalDateTime.parse(booking.endTime, java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+                                .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                        } catch (e: Exception) {
+                            booking.endTime.substring(11, 16)
+                        }
+
+                        Text(formattedDate, style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                        Icon(Icons.Default.AccessTime, contentDescription = null, modifier = Modifier.size(14.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                        Text("$startHour → $endHour", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    }
                 }
             }
         }
@@ -424,19 +447,19 @@ private fun GroupsTab(state: HomeUiState, viewModel: HomeViewModel) {
         item {
             NexusCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Crear Grupo", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.create_group_title), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
                     NexusTextField(
                         value = name,
                         onValueChange = { name = it },
-                        label = "Nombre del grupo"
+                        label = stringResource(R.string.group_name_label)
                     )
                     NexusTextField(
                         value = description,
                         onValueChange = { description = it },
-                        label = "Descripción"
+                        label = stringResource(R.string.description_label)
                     )
                     NexusPrimaryButton(
-                        text = "Crear Grupo",
+                        text = stringResource(R.string.create_group_button),
                         onClick = { viewModel.createGroup(name, description) }
                     )
                 }
@@ -446,7 +469,7 @@ private fun GroupsTab(state: HomeUiState, viewModel: HomeViewModel) {
         item {
             NexusCard {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Unirse a Grupo", style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.join_group_title), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -454,11 +477,11 @@ private fun GroupsTab(state: HomeUiState, viewModel: HomeViewModel) {
                         NexusTextField(
                             value = joinCode,
                             onValueChange = { joinCode = it },
-                            label = "Código del grupo",
+                            label = stringResource(R.string.group_code_label),
                             modifier = Modifier.weight(1f)
                         )
                         NexusSecondaryButton(
-                            text = "Unir",
+                            text = stringResource(R.string.join_button),
                             onClick = {
                                 if (joinCode.isNotBlank()) {
                                     viewModel.joinGroupByCode(joinCode)

@@ -8,8 +8,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.nexusbooking.mobile.R
 import com.example.nexusbooking.mobile.ui.components.LoadingOverlay
 import com.example.nexusbooking.mobile.ui.components.NexusCard
 import com.example.nexusbooking.mobile.ui.components.NexusIconButton
@@ -33,11 +35,11 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             NexusTopAppBar(
-                title = "Mi Perfil",
+                title = stringResource(R.string.profile_title),
                 actions = {
                     NexusIconButton(
                         icon = Icons.AutoMirrored.Filled.ExitToApp,
-                        contentDescription = "Cerrar sesión",
+                        contentDescription = stringResource(R.string.logout_label),
                         onClick = { viewModel.logout() }
                     )
                 }
@@ -94,13 +96,13 @@ private fun ViewPane(state: ProfileUiState, onEdit: () -> Unit) {
     val user = state.user ?: return
     NexusCard(modifier = Modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Información de cuenta", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.account_info), style = MaterialTheme.typography.titleMedium)
             ProfileField(label = "Email", value = user.email)
-            ProfileField(label = "Rol", value = user.role)
+            ProfileField(label = stringResource(R.string.role_label), value = user.role)
         }
     }
     NexusPrimaryButton(
-        text = "Editar Perfil",
+        text = stringResource(R.string.edit_profile_button),
         onClick = onEdit
     )
 }
@@ -118,11 +120,11 @@ private fun EditPane(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         NexusCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Cambiar Email", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.change_email_title), style = MaterialTheme.typography.titleMedium)
                 NexusTextField(
                     value = email,
                     onValueChange = { email = it; validationError = null },
-                    label = "Nuevo email",
+                    label = stringResource(R.string.new_email_label),
                     isError = validationError != null,
                     errorMessage = validationError
                 )
@@ -134,12 +136,12 @@ private fun EditPane(
             modifier = Modifier.fillMaxWidth()
         ) {
             NexusSecondaryButton(
-                text = "Cancelar",
+                text = stringResource(R.string.cancel_button),
                 onClick = onCancel,
                 modifier = Modifier.weight(1f)
             )
             NexusPrimaryButton(
-                text = "Guardar",
+                text = stringResource(R.string.save_button),
                 onClick = {
                     if (email.isBlank()) validationError = "El email no puede estar vacío"
                     else onSave(email)
@@ -150,7 +152,7 @@ private fun EditPane(
         }
 
         TextButton(onClick = onChangePassword, modifier = Modifier.fillMaxWidth()) {
-            Text("Cambiar contraseña")
+            Text(stringResource(R.string.change_password_button))
         }
     }
 }
@@ -169,17 +171,17 @@ private fun ChangePasswordPane(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         NexusCard {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Cambiar Contraseña", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.change_password_title), style = MaterialTheme.typography.titleMedium)
                 NexusTextField(
                     value = current,
                     onValueChange = { current = it; validationError = null },
-                    label = "Contraseña actual",
+                    label = stringResource(R.string.current_password_label),
                     isPassword = true
                 )
                 NexusTextField(
                     value = new,
                     onValueChange = { new = it; validationError = null },
-                    label = "Nueva contraseña",
+                    label = stringResource(R.string.new_password_label),
                     isPassword = true
                 )
                 NexusTextField(
@@ -198,12 +200,12 @@ private fun ChangePasswordPane(
             modifier = Modifier.fillMaxWidth()
         ) {
             NexusSecondaryButton(
-                text = "Atrás",
+                text = stringResource(R.string.back_button),
                 onClick = onBack,
                 modifier = Modifier.weight(1f)
             )
             NexusPrimaryButton(
-                text = "Guardar",
+                text = stringResource(R.string.save_button),
                 onClick = {
                     when {
                         current.isBlank() || new.isBlank() || confirm.isBlank() ->
