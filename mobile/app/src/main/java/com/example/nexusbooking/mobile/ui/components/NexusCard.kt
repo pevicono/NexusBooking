@@ -10,7 +10,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.nexusbooking.mobile.R
 
 @Composable
 fun NexusCard(
@@ -36,12 +38,26 @@ fun NexusStatusBadge(
     status: String,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = when (status.uppercase()) {
-        "AVAILABLE" -> Color(0xFF2E7D32)
+    val statusCode = status.uppercase()
+
+    val backgroundColor = when (statusCode) {
+        "AVAILABLE" -> MaterialTheme.colorScheme.secondary
         "BOOKED" -> Color(0xFFC0392B)
         "MAINTENANCE" -> Color(0xFFF39C12)
+        "ACTIVE" -> MaterialTheme.colorScheme.secondary
+        "INACTIVE" -> Color(0xFF757575)
         else -> MaterialTheme.colorScheme.secondary
     }
+
+    val displayText = when (statusCode) {
+        "AVAILABLE" -> stringResource(R.string.status_available)
+        "BOOKED" -> stringResource(R.string.status_booked)
+        "MAINTENANCE" -> stringResource(R.string.status_maintenance)
+        "ACTIVE" -> stringResource(R.string.status_active)
+        "INACTIVE" -> stringResource(R.string.status_inactive)
+        else -> status
+    }
+
     val textColor = Color.White
 
     Surface(
@@ -50,7 +66,7 @@ fun NexusStatusBadge(
         color = backgroundColor
     ) {
         Text(
-            text = status,
+            text = displayText,
             style = MaterialTheme.typography.labelSmall,
             color = textColor,
             modifier = Modifier.padding(

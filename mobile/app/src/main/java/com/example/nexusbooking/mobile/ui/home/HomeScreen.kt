@@ -55,8 +55,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.nexusbooking.mobile.ui.theme.NexusBlueDark
 import com.example.nexusbooking.mobile.ui.theme.NexusBluePrimary
 import com.example.nexusbooking.mobile.R
+import com.example.nexusbooking.mobile.data.remote.dto.BookingResponse
 import com.example.nexusbooking.mobile.data.remote.dto.FacilityResponse
 import com.example.nexusbooking.mobile.data.remote.dto.GroupResponse
+import com.example.nexusbooking.mobile.ui.components.CalendarView
 import com.example.nexusbooking.mobile.ui.components.NexusCard
 import com.example.nexusbooking.mobile.ui.components.NexusDatePicker
 import com.example.nexusbooking.mobile.ui.components.NexusDropdown
@@ -211,7 +213,9 @@ fun HomeScreen(
 
 @Composable
 private fun DashboardTab(state: HomeUiState, onNavigateToTab: (HomeTab) -> Unit) {
-    androidx.compose.foundation.lazy.LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    var selectedDayBookings by remember { mutableStateOf<List<BookingResponse>>(emptyList()) }
+
+    androidx.compose.foundation.lazy.LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             NexusCard(modifier = Modifier.fillMaxWidth()) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -243,22 +247,71 @@ private fun DashboardTab(state: HomeUiState, onNavigateToTab: (HomeTab) -> Unit)
         }
 
         item {
-            Text(stringResource(R.string.upcoming_bookings), style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
+            CalendarView(
+                bookings = state.bookings,
+                onDaySelected = { _, bookings -> selectedDayBookings = bookings },
+                onMonthChanged = { selectedDayBookings = emptyList() }
+            )
         }
 
-        if (state.bookings.isNotEmpty()) {
-            items(state.bookings.take(3)) { booking ->
+        if (selectedDayBookings.isNotEmpty()) {
+            items(selectedDayBookings) { booking ->
                 NexusCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                         ) {
-                            Text(booking.facilityName, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
-                            TranslatedStatusBadge(booking.status)
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                            ) {
+                                Text("#${booking.id}", style = androidx.compose.material3.MaterialTheme.typography.labelSmall)
+                                Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                                Text(booking.facilityName, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
+                            }
+                            NexusStatusBadge(booking.status)
                         }
-                        Text(booking.startTime.take(16), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Group, contentDescription = null, modifier = Modifier.size(16.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                            Text(booking.groupName ?: "-", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                        }
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            val startDateTime = try {
+                                java.time.LocalDateTime.parse(booking.startTime, java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+                            } catch (e: Exception) {
+                                null
+                            }
+                            val formattedDate = startDateTime?.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) ?: booking.startTime.take(10)
+                            val startHour = startDateTime?.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")) ?: booking.startTime.substring(11, 16)
+                            val endHour = try {
+                                java.time.LocalDateTime.parse(booking.endTime, java.time.format.DateTimeFormatter.ISO_DATE_TIME)
+                                    .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                            } catch (e: Exception) {
+                                booking.endTime.substring(11, 16)
+                            }
+
+                            Icon(Icons.Default.AccessTime, contentDescription = null, modifier = Modifier.size(14.dp), tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
+                            Text(formattedDate, style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                            Text("$startHour → $endHour", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                        }
                     }
+                }
+            }
+        } else if (state.bookings.isNotEmpty()) {
+            item {
+                NexusCard(modifier = Modifier.fillMaxWidth()) {
+                    Text("Selecciona un día con reservas para ver detalles", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                 }
             }
         } else {
@@ -301,7 +354,7 @@ private fun FacilitiesTab(state: HomeUiState) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(facility.name, style = androidx.compose.material3.MaterialTheme.typography.titleMedium)
-                        TranslatedStatusBadge(facility.status)
+                        NexusStatusBadge(facility.status)
                     }
                     Text("Tipo: ${facility.type}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                     Text("Capacidad: ${facility.capacity ?: 0} | Ubicación: ${facility.location ?: "-"}")
@@ -838,26 +891,13 @@ private fun AdminTab(state: HomeUiState, viewModel: HomeViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(user.email, style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
-                        TranslatedStatusBadge(if (user.active) "ACTIVO" else "INACTIVO")
+                        NexusStatusBadge(if (user.active) "ACTIVO" else "INACTIVO")
                     }
                     Text("${user.role} | #${user.id}", style = androidx.compose.material3.MaterialTheme.typography.labelSmall)
                 }
             }
         }
     }
-}
-
-@Composable
-private fun TranslatedStatusBadge(status: String, modifier: Modifier = Modifier) {
-    val translatedStatus = when (status.uppercase()) {
-        "AVAILABLE" -> stringResource(R.string.status_available)
-        "BOOKED" -> stringResource(R.string.status_booked)
-        "MAINTENANCE" -> stringResource(R.string.status_maintenance)
-        "ACTIVO" -> stringResource(R.string.status_active)
-        "INACTIVO" -> stringResource(R.string.status_inactive)
-        else -> status
-    }
-    NexusStatusBadge(translatedStatus, modifier)
 }
 
 private fun defaultStartTime(): String {
