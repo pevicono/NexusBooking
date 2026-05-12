@@ -3,7 +3,7 @@
 
 param(
     [Parameter(Position=0, Mandatory=$true)]
-    [ValidateSet("start","stop","reset","clear","seed","psql","logs","status")]
+    [ValidateSet("start","stop","reset","build","clear","seed","psql","logs","status")]
     [string]$Command
 )
 
@@ -31,10 +31,26 @@ function RunSql([string]$file) {
     EnsureDockerAvailable
     $containerId = GetPostgresContainerId
 
-    # Using docker exec to run SQL inside the container
-    Get-Content $file | docker exec -i $containerId psql -v ON_ERROR_STOP=1 -U $DB_USER -d $DB_NAME
+    if (-not (Test-Path $file)) {
+        throw "SQL file not found: $file"
+    }
+
+    $containerSqlFile = "/tmp/nexusbooking_script.sql"
+
+    # Copy the SQL file into the container to preserve original UTF-8 bytes.
+    docker cp $file "${containerId}:$containerSqlFile" *> $null
     if ($LASTEXITCODE -ne 0) {
-        throw "SQL execution failed for file: $file"
+        throw "Failed to copy SQL file into container: $file"
+    }
+
+    try {
+        $output = docker exec $containerId psql -v ON_ERROR_STOP=1 -U $DB_USER -d $DB_NAME -f $containerSqlFile 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "SQL execution failed for file: $file`n$output"
+        }
+    }
+    finally {
+        docker exec $containerId rm -f $containerSqlFile *> $null
     }
 }
 
@@ -80,6 +96,21 @@ switch ($Command) {
         Write-Host "Database reset complete." -ForegroundColor Green
     }
 
+    "build" {
+        Write-Host "Building database schema from local scripts (V1..Vn)..." -ForegroundColor Yellow
+        RunSql (Join-Path $SCRIPTS_DIR "drop_tables.sql")
+
+        $localMigrations = Get-ChildItem -Path $SCRIPTS_DIR -Filter "V*.sql" |
+            Sort-Object Name
+
+        foreach ($migration in $localMigrations) {
+            Write-Host "Applying local migration $($migration.Name)..." -ForegroundColor DarkGray
+            RunSql $migration.FullName
+        }
+
+        Write-Host "Database build complete." -ForegroundColor Green
+    }
+
     "clear" {
         Write-Host "Clearing all data (schema preserved)..." -ForegroundColor Yellow
         RunSql (Join-Path $SCRIPTS_DIR "clear_data.sql")
@@ -87,9 +118,24 @@ switch ($Command) {
     }
 
     "seed" {
-        Write-Host "Seeding database with sample data..." -ForegroundColor Cyan
-        RunSql (Join-Path $SCRIPTS_DIR "seed_data.sql")
-        Write-Host "Seed data inserted." -ForegroundColor Green
+        Write-Host "Seeding database with demo data..." -ForegroundColor Cyan
+        Write-Host "Clearing existing data before seed..." -ForegroundColor DarkGray
+        RunSql (Join-Path $SCRIPTS_DIR "clear_data.sql")
+        $seedFile = Join-Path $SCRIPTS_DIR "seed_data.sql"
+        if (-not (Test-Path $seedFile)) {
+            throw "Seed file not found: $seedFile"
+        }
+        RunSql $seedFile
+        Write-Host "Seed data loaded successfully." -ForegroundColor Green
+        Write-Host "" 
+        Write-Host "Seed includes:" -ForegroundColor Green
+        Write-Host "  • 15 users across 4 organizations (2 inactive)" -ForegroundColor DarkGray
+        Write-Host "  • 12 realistic facilities (classrooms, labs, meeting rooms, coworking)" -ForegroundColor DarkGray
+        Write-Host "  • 9 collaborative groups (university, tech, startups, bootcamps, padel)" -ForegroundColor DarkGray
+        Write-Host "  • 31 bookings (confirmed, completed, cancelled)" -ForegroundColor DarkGray
+        Write-Host "  • 5 incidents (open, in progress, resolved, closed)" -ForegroundColor DarkGray
+        Write-Host ""
+        Write-Host "See DEMO_DATA_README.md for storytelling guide and SQL queries." -ForegroundColor Yellow
     }
 
     "psql" {
