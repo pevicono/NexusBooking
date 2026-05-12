@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NexusBooking - Llegeix-me (Posada en Marxa des de 0)</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --ink: #1f3556;
+      --muted: #5f6f86;
+      --line: #dbe4f1;
+      --brand-900: #071d3d;
+      --brand-700: #0f4ca3;
+      --brand-500: #2b7de9;
+      --ok: #198754;
+      --warn: #e67e22;
+      --danger: #dc453c;
+      --card: #ffffff;
+      --code: #0f172a;
+      --code-bg: #eef4ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(160deg, #eef3f9 0%, var(--bg) 55%, #ffffff 100%);
+      line-height: 1.45;
+    }
+
+    .hero {
+      color: #fff;
+      background: linear-gradient(120deg, var(--brand-900), var(--brand-700));
+      padding: 36px 24px;
+      border-bottom: 4px solid var(--brand-500);
+    }
+
+    .hero-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-logo {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: rgba(255, 255, 255, 0.92);
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 24px auto 40px;
+      padding: 0 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(10, 36, 80, 0.08);
+      padding: 18px 18px;
+      margin-bottom: 16px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 28px;
+      color: #16345f;
+      border-bottom: 3px solid var(--brand-500);
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 20px;
+      color: #1f487f;
+    }
+
+    p, li { font-size: 15px; }
+
+    ul, ol {
+      margin: 8px 0 10px 20px;
+      padding: 0;
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 4px 10px;
+      color: #fff;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .ok { background: var(--ok); }
+    .warn { background: var(--warn); }
+    .danger { background: var(--danger); }
+    .brand { background: var(--brand-700); }
+
+    .grid-2 {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .mini h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: #1d3761;
+    }
+
+    code {
+      background: #edf3ff;
+      border: 1px solid #d8e2ee;
+      color: #23436f;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-family: Consolas, Menlo, monospace;
+      font-size: 13px;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #cddbf0;
+      background: var(--code-bg);
+      color: var(--code);
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef4fd;
+      color: #294976;
+      font-weight: 700;
+    }
+
+    .note {
+      border-left: 4px solid var(--brand-500);
+      background: #f3f8ff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #23436f;
+      margin-top: 8px;
+    }
+
+    .warn-box {
+      border-left: 4px solid var(--warn);
+      background: #fff8f1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #7a4d1e;
+      margin-top: 8px;
+    }
+
+    .footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media screen and (max-width: 860px) {
+      h1 { font-size: 32px; }
+      .subtitle { font-size: 17px; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      @page {
+        size: A4;
+        margin: 12mm;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      .hero {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .card {
+        box-shadow: none;
+      }
+
+      pre, table, .mini {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <img class="hero-logo" src="../desktop/src/main/resources/com/example/nexusbooking/desktop/images/white-logo.png" alt="NexusBooking logo blanc">
+      <div>
+        <h1>NexusBooking</h1>
+        <p class="subtitle">Llegeix-me: Guia de posada en marxa des de 0</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>1. Objectiu</h2>
+      <p>Aquesta guia explica com arrancar <strong>tot el projecte NexusBooking des de zero</strong>: base de dades, backend, client desktop i client mobile, amb comprovacions bàsiques perquè validis que tot funciona abans de fer demo o desenvolupament.</p>
+      <div class="note">Sistema operatiu recomanat: <strong>Windows</strong> (els exemples usen PowerShell i scripts <code>.cmd</code>).</div>
+    </section>
+
+    <section class="card">
+      <h2>2. Prerequisits</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Eina</th>
+            <th>Versió recomanada</th>
+            <th>Ús</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Docker Desktop</td>
+            <td>Actual</td>
+            <td>PostgreSQL + pgAdmin</td>
+          </tr>
+          <tr>
+            <td>Java</td>
+            <td>21+</td>
+            <td>Backend i desktop</td>
+          </tr>
+          <tr>
+            <td>Maven</td>
+            <td>3.8+</td>
+            <td>Build i execució backend/desktop</td>
+          </tr>
+          <tr>
+            <td>Android Studio + SDK</td>
+            <td>API 26+</td>
+            <td>App Android</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warn-box">Si PowerShell et bloqueja scripts, usa sempre <code>db.cmd</code> (ja aplica bypass de política internament).</div>
+    </section>
+
+    <section class="card">
+      <h2>3. Estructura ràpida del projecte</h2>
+      <pre>NexusBooking/
+├── database/   # Docker, scripts i dades demo
+├── backend/    # Spring Boot API REST + JWT
+├── desktop/    # JavaFX client (USER + ADMIN)
+├── mobile/     # Android (Kotlin + Compose)
+└── config.properties  # URL base del desktop</pre>
+    </section>
+
+    <section class="card">
+      <h2>4. Arrancada mínima (DB + Backend)</h2>
+      <ol>
+        <li>Obre terminal a l’arrel del repo <code>NexusBooking/</code>.</li>
+        <li>Arranca contenidors de base de dades:</li>
+      </ol>
+      <pre>cd database
+.\db.cmd start</pre>
+      <ol start="3">
+        <li>(Opcional) Carrega dades demo:</li>
+      </ol>
+      <pre>.\db.cmd seed</pre>
+      <ol start="4">
+        <li>Arranca el backend:</li>
+      </ol>
+      <pre>cd ..\backend
+mvn spring-boot:run</pre>
+
+      <h3>Comprovació</h3>
+      <table>
+        <thead>
+          <tr><th>Servei</th><th>URL</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>API</td><td><code>http://localhost:8080</code></td></tr>
+          <tr><td>Swagger</td><td><code>http://localhost:8080/swagger-ui.html</code></td></tr>
+          <tr><td>pgAdmin</td><td><code>http://localhost:5050</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>5. Executar el client desktop</h2>
+      <h3>Configuració URL backend</h3>
+      <p>Edita el fitxer <code>config.properties</code> a l’arrel del projecte:</p>
+      <pre>api.base.url=http://localhost:8080</pre>
+
+      <h3>Execució</h3>
+      <pre>cd desktop
+mvn javafx:run</pre>
+
+      <h3>Què validar en obrir</h3>
+      <ul>
+        <li>Login i registre funcionen.</li>
+        <li>Amb usuari USER: dashboard, reserves, grups i incidències.</li>
+        <li>Amb usuari ADMIN: backoffice (usuaris, instal·lacions, reserves, grups, incidències, calendari).</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. Executar el client mobile (Android)</h2>
+      <h3>URL backend</h3>
+      <ul>
+        <li><strong>Emulador Android:</strong> usa <code>http://10.0.2.2:8080</code> (per defecte).</li>
+        <li><strong>Dispositiu físic:</strong> canvia la base URL a <code>mobile/app/src/main/java/com/example/nexusbooking/mobile/data/remote/ApiService.kt</code> amb la IP del teu PC.</li>
+      </ul>
+
+      <h3>Execució</h3>
+      <pre>cd mobile
+./gradlew installDebug</pre>
+      <p>Alternativa: Android Studio -> Run <code>app</code>.</p>
+    </section>
+
+    <section class="card">
+      <h2>7. Comptes demo</h2>
+      <p>Si has executat <code>.\db.cmd seed</code>:</p>
+      <table>
+        <thead>
+          <tr><th>Email</th><th>Password</th><th>Rol</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>admin@nexusbooking.com</code></td><td><code>Admin1234!</code></td><td>ADMIN</td></tr>
+          <tr><td><code>user@nexusbooking.com</code></td><td><code>User1234!</code></td><td>USER</td></tr>
+        </tbody>
+      </table>
+      <div class="note">Per més comptes/demo funcional: consulta <code>DEMO_DATA_README.md</code>.</div>
+    </section>
+
+    <section class="card">
+      <h2>8. Comandes útils (operació diària)</h2>
+      <div class="grid-2">
+        <div class="mini">
+          <h4>Database</h4>
+          <ul>
+            <li><code>.\db.cmd status</code></li>
+            <li><code>.\db.cmd logs</code></li>
+            <li><code>.\db.cmd clear</code></li>
+            <li><code>.\db.cmd reset</code></li>
+            <li><code>.\db.cmd stop</code></li>
+          </ul>
+        </div>
+        <div class="mini">
+          <h4>Backend/Tests</h4>
+          <ul>
+            <li><code>cd backend</code></li>
+            <li><code>mvn test</code></li>
+            <li><code>mvn spring-boot:run</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>9. Resolució de problemes</h2>
+
+      <h3>No connecta amb backend</h3>
+      <ul>
+        <li>Comprova que backend està aixecat a <code>localhost:8080</code>.</li>
+        <li>Desktop: revisa <code>config.properties</code>.</li>
+        <li>Mobile: revisa base URL (<code>10.0.2.2</code> en emulador).</li>
+      </ul>
+
+      <h3>Base de dades no arrenca</h3>
+      <ul>
+        <li>Docker Desktop ha d’estar iniciat.</li>
+        <li>Port 5432/5050 lliures.</li>
+        <li>Executa <code>cd database</code> i <code>.\db.cmd status</code>.</li>
+      </ul>
+
+      <h3>Dades incoherents per proves</h3>
+      <ul>
+        <li>Per tornar a estat net: <code>.\db.cmd clear</code> + <code>.\db.cmd seed</code>.</li>
+        <li>Per reconstrucció completa: <code>.\db.cmd reset</code>.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>10. Flux recomanat per DEMO</h2>
+      <p>
+        <span class="pill brand">1</span>
+        <span class="pill ok">DB start + seed</span>
+        <span class="pill brand">2</span>
+        <span class="pill ok">Backend</span>
+        <span class="pill brand">3</span>
+        <span class="pill ok">Desktop (admin + user)</span>
+        <span class="pill brand">4</span>
+        <span class="pill ok">Mobile</span>
+      </p>
+      <pre>cd database
+.\db.cmd start
+.\db.cmd seed
+
+cd ..\backend
+mvn spring-boot:run
+
+# Nova terminal
+cd desktop
+mvn javafx:run</pre>
+    </section>
+
+    <p class="footer">NexusBooking · Llegeix-me HTML (exportable a PDF) · Actualitzat: 12/05/2026</p>
+  </main>
+</body>
+</html>
