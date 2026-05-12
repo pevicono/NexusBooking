@@ -1,3 +1,101 @@
 <resources>
     <string name="app_name">NexusBooking</string>
+
+    <!-- Login Screen -->
+    <string name="login_tab">Iniciar sesión</string>
+    <string name="register_tab">Registrarse</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Contraseña</string>
+    <string name="confirm_password_label">Confirmar contraseña</string>
+    <string name="login_button">Entrar</string>
+    <string name="register_button">Crear cuenta</string>
+
+    <!-- Validation Errors -->
+    <string name="complete_all_fields_error">Completa todos los campos</string>
+    <string name="min_password_length_error">Mínimo 6 caracteres</string>
+    <string name="passwords_dont_match_error">Las contraseñas no coinciden</string>
+
+    <!-- App -->
+    <string name="app_tagline">RESERVA. CONECTA. DISFRUTA.</string>
+    <string name="greeting_hello">¡Hola, %s!</string>
+
+    <!-- Home Screen - Dashboard Tab -->
+    <string name="dashboard_summary">Resumen</string>
+    <string name="facilities_count">Instalaciones</string>
+    <string name="my_bookings_count">Mis Reservas</string>
+    <string name="my_groups_count">Mis Grupos</string>
+    <string name="upcoming_bookings">Próximas Reservas</string>
+    <string name="no_upcoming_bookings">No hay reservas próximas</string>
+
+    <!-- Home Screen - Bookings Tab -->
+    <string name="new_booking_title">Nueva Reserva</string>
+    <string name="facility_label">Instalación</string>
+    <string name="group_label">Grupo</string>
+    <string name="day_label">Día</string>
+    <string name="start_time_label">Inicio</string>
+    <string name="end_time_label">Fin</string>
+    <string name="notes_label">Notas</string>
+    <string name="create_booking_button">Crear Reserva</string>
+
+    <!-- Home Screen - Groups Tab -->
+    <string name="create_group_title">Crear Grupo</string>
+    <string name="group_name_label">Nombre del grupo</string>
+    <string name="description_label">Descripción</string>
+    <string name="create_group_button">Crear Grupo</string>
+    <string name="join_group_title">Unirse a Grupo</string>
+    <string name="group_code_label">Código del grupo</string>
+    <string name="select_group_label">Seleccionar grupo</string>
+    <string name="join_button">Unir</string>
+
+    <!-- Home Screen - Facilities Tab -->
+    <string name="facility_type_label">Tipo</string>
+    <string name="facility_capacity_location">Capacidad: %d | Ubicación: %s</string>
+
+    <!-- Common Buttons -->
+    <string name="close_button">Cerrar</string>
+    <string name="cancel_button">Cancelar</string>
+    <string name="save_button">Guardar</string>
+    <string name="back_button">Atrás</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Mi Perfil</string>
+    <string name="logout_label">Cerrar sesión</string>
+    <string name="account_info">Información de cuenta</string>
+    <string name="role_label">Rol</string>
+    <string name="edit_profile_button">Editar Perfil</string>
+    <string name="change_email_title">Cambiar Email</string>
+    <string name="new_email_label">Nuevo email</string>
+    <string name="change_password_button">Cambiar contraseña</string>
+    <string name="change_password_title">Cambiar Contraseña</string>
+    <string name="current_password_label">Contraseña actual</string>
+    <string name="new_password_label">Nueva contraseña</string>
+
+    <!-- Admin Screen -->
+    <string name="admin_users_title">Usuarios</string>
+    <string name="admin_facilities_title">Instalaciones</string>
+    <string name="admin_incidents_title">Incidencias</string>
+
+    <!-- Bottom Navigation Bar -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_bookings">Reservas</string>
+    <string name="nav_groups">Grupos</string>
+    <string name="nav_facilities">Instalaciones</string>
+    <string name="nav_admin">Admin</string>
+
+    <!-- Tab Titles -->
+    <string name="my_bookings">Mis reservas</string>
+    <string name="my_groups">Mis Grupos</string>
+    <string name="available_facilities">Instalaciones disponibles</string>
+    <string name="admin_panel">Panel de administración</string>
+
+    <!-- Top App Bar -->
+    <string name="app_title">NexusBooking</string>
+    <string name="profile_button">Perfil</string>
+
+    <!-- Status Badges -->
+    <string name="status_available">Disponible</string>
+    <string name="status_booked">Reservado</string>
+    <string name="status_maintenance">Mantenimiento</string>
+    <string name="status_active">Activo</string>
+    <string name="status_inactive">Inactivo</string>
 </resources>
