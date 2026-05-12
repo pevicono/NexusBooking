@@ -200,6 +200,41 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/groups/{id}/members")
+    @Operation(summary = "List members for a group (admin)")
+    public ResponseEntity<?> groupMembers(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(groupService.listMembers(id));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error loading group members"));
+        }
+    }
+
+    @PostMapping("/groups/{id}/members/{userId}")
+    @Operation(summary = "Add member to group (admin)")
+    public ResponseEntity<?> addMember(@PathVariable Long id, @PathVariable Long userId) {
+        try {
+            groupService.adminAddMember(id, userId);
+            return ResponseEntity.ok(GroupResponse.from(groupService.findById(id)));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/groups/{id}/members/{userId}")
+    @Operation(summary = "Remove member from group (admin)")
+    public ResponseEntity<?> removeMember(@PathVariable Long id, @PathVariable Long userId) {
+        try {
+            groupService.adminRemoveMember(id, userId);
+            return ResponseEntity.ok(GroupResponse.from(groupService.findById(id)));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
     @GetMapping("/incidents")
     @Operation(summary = "List incidents")
     public List<IncidentResponse> incidents() {

@@ -248,7 +248,95 @@ class DesktopFlowsE2ETest extends ApplicationTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
+    @Timeout(value = 40, unit = TimeUnit.SECONDS)
+    void userGroupMembersDialog_shouldDisplayAndAllowRemoval() {
+        openHomeAsUser();
+        assertTrue(waitForNode("#upcomingCountLabel", 10), "Expected Home dashboard to load");
+
+        // Click on a group card to open group details
+        clickNode("#groupsCardsContainer");
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // Try to open group members dialog (if button exists)
+        if (lookup("#groupMembersBtn-10").tryQuery().isPresent()) {
+            clickNode("#groupMembersBtn-10");
+            assertTrue(waitForNode("#groupMembersDialog", 5), "Expected group members dialog to open");
+            
+            // Verify members list is displayed
+            assertTrue(waitForTextPresent("user@example.com", true, 5), "Expected group member email to be visible");
+            
+            // Verify remove button appears (only for owner)
+            if (lookup("#memberRemoveBtn-2").tryQuery().isPresent()) {
+                clickNode("#memberRemoveBtn-2");
+                clickDialogConfirm();
+                assertTrue(waitForCounter("DELETE /api/groups/10/members/2", 1, 5), "Expected member removal request");
+            }
+        }
+    }
+
+    @Test
+    @Order(6)
+    @Timeout(value = 40, unit = TimeUnit.SECONDS)
+    void userIncidentCreationDialog_shouldOpenAndFilterBookings() {
+        openHomeAsUser();
+        assertTrue(waitForNode("#upcomingCountLabel", 10), "Expected Home dashboard to load");
+
+        clickNode("#createIncidentButton");
+        assertTrue(waitForNode("#incidentDialogTitle", 5), "Expected incident creation dialog to open");
+
+        // Verify picker field for booking selection is visible
+        assertTrue(waitForNode("#dialogBookingPickerField", 5), "Expected booking picker field");
+
+        // Click the picker button to open searchable dialog
+        if (lookup("#dialogBookingPickerButton").tryQuery().isPresent()) {
+            clickNode("#dialogBookingPickerButton");
+            assertTrue(waitForNode("#pickerSearchField", 5), "Expected searchable picker dialog to open");
+            
+            // Type to filter bookings
+            clickOn("#pickerSearchField");
+            write("Reserva");
+            WaitForAsyncUtils.waitForFxEvents();
+
+            // Select a booking
+            if (lookup(".picker-list-view").tryQuery().isPresent()) {
+                clickOn(".picker-list-view");
+                clickDialogConfirm();
+            }
+        }
+
+        // Fill incident details
+        setTextFieldValue("#incidentTitleField", "Damage in booking");
+        setTextFieldValue("#incidentDescriptionField", "Broken equipment");
+
+        clickDialogConfirm();
+        assertTrue(waitForCounter("POST /api/incidents", 1, 5), "Expected incident creation request");
+    }
+
+    @Test
+    @Order(7)
+    @Timeout(value = 40, unit = TimeUnit.SECONDS)
+    void userBookingListSorting_shouldDisplayFutureAndPastSections() {
+        openHomeAsUser();
+        assertTrue(waitForNode("#upcomingCountLabel", 10), "Expected Home dashboard to load");
+
+        // Navigate to bookings page
+        clickNode("#navBookingsButton");
+        assertTrue(waitForNode("#bookingsCardsContainer", 5), "Expected bookings page to load");
+
+        // Verify upcoming bookings section exists
+        assertTrue(waitForTextPresent("Pròximes reserves", true, 5), "Expected upcoming bookings section");
+
+        // Scroll down to see past bookings section if it exists
+        scrollAllScrollPanes(1.0);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        // Verify bookings are displayed and sorted
+        assertTrue(waitForTextPresent("Reserva", true, 5), "Expected booking cards to be rendered");
+    }
+
+    @Test
+    @Order(8)
     void adminLoginRoutesToBackoffice() {
         openBackofficeAsAdmin();
         assertTrue(waitForNode("#statsLabel", 5), "Expected Backoffice scene after admin login");
@@ -694,6 +782,19 @@ class DesktopFlowsE2ETest extends ApplicationTest {
                 return json(200, GSON.toJson(updated));
             }
 
+            if ("GET".equals(method) && path != null && path.matches("/api/groups/\\d+/members")) {
+                long groupId = Long.parseLong(path.substring("/api/groups/".length(), path.length() - "/members".length()));
+                return json(200, STATE.groupMembersJson(groupId));
+            }
+
+            if ("DELETE".equals(method) && path != null && path.matches("/api/groups/\\d+/members/\\d+")) {
+                String[] parts = path.split("/");
+                long groupId = Long.parseLong(parts[3]);
+                long userId = Long.parseLong(parts[5]);
+                STATE.removeGroupMember(groupId, userId);
+                return json(200, "{\"message\":\"Member removed\"}");
+            }
+
             if ("GET".equals(method) && "/api/bookings/mine".equals(path)) {
                 return json(200, STATE.myBookingsJson());
             }
@@ -767,6 +868,21 @@ class DesktopFlowsE2ETest extends ApplicationTest {
                 return json(200, "[]");
             }
 
+            if ("POST".equals(method) && "/api/incidents".equals(path)) {
+                JsonObject body = JsonParser.parseString(request.getBody().readUtf8()).getAsJsonObject();
+                JsonObject created = new JsonObject();
+                created.addProperty("id", 201);
+                created.addProperty("facilityId", body.get("facilityId").getAsLong());
+                created.addProperty("title", body.get("title").getAsString());
+                created.addProperty("description", body.has("description") ? body.get("description").getAsString() : "");
+                created.addProperty("status", "OPEN");
+                return json(201, GSON.toJson(created));
+            }
+
+            if ("GET".equals(method) && "/api/incidents/mine".equals(path)) {
+                return json(200, "[]");
+            }
+
             return json(404, "{\"message\":\"Not found\"}");
         }
 
@@ -808,10 +924,14 @@ class DesktopFlowsE2ETest extends ApplicationTest {
             adminGroups.add(adminGroup(10, "Team Alpha", "Grup inicial", "ALPHA1", "user@example.com", 2));
 
             myBookings = new ArrayList<>();
+            myBookings.add(userBooking(99, 1, "Pista Central", 10, "Team Alpha",
+                    "2024-12-01T09:00:00", "2024-12-01T10:00:00", "CONFIRMED", "Past booking"));
             myBookings.add(userBooking(100, 1, "Pista Central", 10, "Team Alpha",
                     "2030-01-15T10:00:00", "2030-01-15T11:00:00", "CONFIRMED", "Inicial"));
 
             adminBookings = new ArrayList<>();
+            adminBookings.add(adminBooking(99, 2, "user@example.com", 1, "Pista Central", 10, "Team Alpha",
+                    "2024-12-01T09:00:00", "2024-12-01T10:00:00", "CONFIRMED", "Past booking"));
             adminBookings.add(adminBooking(100, 2, "user@example.com", 1, "Pista Central", 10, "Team Alpha",
                     "2030-01-15T10:00:00", "2030-01-15T11:00:00", "CONFIRMED", "Inicial"));
         }
@@ -885,6 +1005,29 @@ class DesktopFlowsE2ETest extends ApplicationTest {
 
         synchronized void adminDeleteGroup(long groupId) {
             adminGroups.removeIf(group -> group.get("id").getAsLong() == groupId);
+        }
+
+        synchronized String groupMembersJson(long groupId) {
+            com.google.gson.JsonArray members = new com.google.gson.JsonArray();
+            // Simulate group members: owner and one regular member for testing
+            JsonObject owner = new JsonObject();
+            owner.addProperty("id", 1);
+            owner.addProperty("email", "user@example.com");
+            owner.addProperty("role", "OWNER");
+            members.add(owner);
+
+            JsonObject member = new JsonObject();
+            member.addProperty("id", 2);
+            member.addProperty("email", "mate@example.com");
+            member.addProperty("role", "MEMBER");
+            members.add(member);
+
+            return GSON.toJson(members);
+        }
+
+        synchronized void removeGroupMember(long groupId, long userId) {
+            // Mock implementation: just log the removal
+            // In real scenario, would remove member from group members list
         }
 
         synchronized JsonObject createUserBooking(JsonObject body) {

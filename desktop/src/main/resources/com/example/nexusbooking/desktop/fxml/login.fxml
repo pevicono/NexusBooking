@@ -1,49 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.example.nexusbooking.desktop.controller.LoginController"
-           styleClass="root-pane"
+           styleClass="root-pane,login-shell"
            stylesheets="@../css/style.css">
 
-    <VBox styleClass="card" maxWidth="380" alignment="TOP_CENTER">
-
-        <Label text="NexusBooking" styleClass="app-title"/>
-
-        <HBox styleClass="tab-bar" alignment="CENTER">
-            <Button fx:id="tabLogin" text="Login" styleClass="tab-btn,tab-active"
-                    onAction="#showLogin" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-            <Button fx:id="tabRegister" text="Register" styleClass="tab-btn"
-                    onAction="#showRegister" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
-        </HBox>
-
-        <StackPane minHeight="260" VBox.vgrow="NEVER">
-
-            <VBox fx:id="loginPane" styleClass="form-pane" spacing="12" alignment="TOP_LEFT">
-                <Label text="Email" styleClass="field-label"/>
-                <TextField fx:id="loginEmail" promptText="you@example.com" styleClass="field"/>
-                <Label text="Password" styleClass="field-label"/>
-                <PasswordField fx:id="loginPassword" promptText="••••••••" styleClass="field"/>
-                <Label fx:id="loginError" styleClass="error-label" wrapText="true" minHeight="16"/>
-                <Button fx:id="loginSubmitButton" text="Login" styleClass="btn-primary" maxWidth="Infinity" onAction="#doLogin"/>
-                <Hyperlink text="Forgot password?" onAction="#showForgotPassword" styleClass="link"/>
+    <VBox maxWidth="430" minWidth="340" alignment="CENTER" styleClass="login-wrapper">
+        <VBox spacing="0" maxWidth="Infinity" styleClass="login-device-card">
+            <VBox spacing="10" alignment="CENTER" styleClass="login-hero-card">
+                <StackPane styleClass="login-logo-ring">
+                    <ImageView fx:id="logoImage" fitWidth="74" fitHeight="74" preserveRatio="true"/>
+                </StackPane>
+                <Label text="NexusBooking" styleClass="login-brand-title"/>
+                <Label text="Gestiona espais, grups i reserves amb una experiència clara i ràpida." wrapText="true" alignment="CENTER" styleClass="login-brand-subtitle"/>
             </VBox>
 
-            <VBox fx:id="registerPane" styleClass="form-pane" spacing="12" alignment="TOP_LEFT"
-                  visible="false" managed="false">
-                <Label text="Email" styleClass="field-label"/>
-                <TextField fx:id="regEmail" promptText="you@example.com" styleClass="field"/>
-                <Label text="Password" styleClass="field-label"/>
-                <PasswordField fx:id="regPassword" promptText="min. 6 characters" styleClass="field"/>
-                <Label text="Confirm Password" styleClass="field-label"/>
-                <PasswordField fx:id="regConfirm" promptText="••••••••" styleClass="field"/>
-                <Label fx:id="regError" styleClass="error-label" wrapText="true" minHeight="16"/>
-                <Button fx:id="registerSubmitButton" text="Register" styleClass="btn-primary" maxWidth="Infinity" onAction="#doRegister"/>
-            </VBox>
+            <VBox spacing="14" styleClass="login-form-card" maxWidth="Infinity">
+                <HBox alignment="CENTER" spacing="0" styleClass="tab-bar" maxWidth="Infinity">
+                    <Button fx:id="tabLogin" text="Iniciar sessió" styleClass="tab-btn,tab-active" onAction="#showLogin" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="tabRegister" text="Registrar-se" styleClass="tab-btn" onAction="#showRegister" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+                </HBox>
 
-        </StackPane>
+                <StackPane minHeight="300" maxWidth="Infinity">
+                    <VBox fx:id="loginPane" styleClass="form-pane,login-form-pane" spacing="12" alignment="TOP_LEFT" maxWidth="Infinity">
+                    <Label text="Email" styleClass="field-label"/>
+                    <TextField fx:id="loginEmail" promptText="you@example.com" styleClass="field" onAction="#doLogin"/>
+                    <Label text="Contrasenya" styleClass="field-label"/>
+                    <PasswordField fx:id="loginPassword" promptText="••••••••" styleClass="field" onAction="#doLogin"/>
+                    <Label fx:id="loginError" styleClass="error-label" wrapText="true" minHeight="18"/>
+                    <Button fx:id="loginSubmitButton" text="Entrar" styleClass="btn-primary" maxWidth="Infinity" onAction="#doLogin"/>
+                    <Hyperlink text="Has oblidat la contrasenya?" onAction="#showForgotPassword" styleClass="link"/>
+                    </VBox>
+
+                    <VBox fx:id="registerPane" styleClass="form-pane,login-form-pane" spacing="12" alignment="TOP_LEFT" visible="false" managed="false" maxWidth="Infinity">
+                        <Label text="Email" styleClass="field-label"/>
+                        <TextField fx:id="regEmail" promptText="you@example.com" styleClass="field"/>
+                        <Label text="Contrasenya" styleClass="field-label"/>
+                        <PasswordField fx:id="regPassword" promptText="mínim 6 caràcters" styleClass="field"/>
+                        <Label text="Confirma la contrasenya" styleClass="field-label"/>
+                        <PasswordField fx:id="regConfirm" promptText="••••••••" styleClass="field"/>
+                        <Label fx:id="regError" styleClass="error-label" wrapText="true" minHeight="18"/>
+                        <Button fx:id="registerSubmitButton" text="Crear compte" styleClass="btn-primary" maxWidth="Infinity" onAction="#doRegister"/>
+                    </VBox>
+                </StackPane>
+            </VBox>
+        </VBox>
     </VBox>
 </StackPane>

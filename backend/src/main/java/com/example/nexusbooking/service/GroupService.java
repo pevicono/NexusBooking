@@ -1,6 +1,7 @@
 package com.example.nexusbooking.service;
 
 import com.example.nexusbooking.dto.GroupRequest;
+import com.example.nexusbooking.dto.GroupResponse.GroupMemberResponse;
 import com.example.nexusbooking.model.Group;
 import com.example.nexusbooking.model.GroupMember;
 import com.example.nexusbooking.model.User;
@@ -153,6 +154,84 @@ public class GroupService {
     public void adminDelete(Long groupId) {
         Group group = findById(groupId);
         groupRepository.delete(group);
+    }
+
+    @Transactional(readOnly = true)
+    public List<GroupMemberResponse> listMembers(Long groupId) {
+        Group group = findById(groupId);
+        return groupMemberRepository.findByGroup(group)
+                .stream()
+                .map(GroupMemberResponse::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<GroupMemberResponse> listMembersForUser(User requester, Long groupId) {
+        Group group = findById(groupId);
+        boolean isMember = groupMemberRepository.existsByGroupAndUser(group, requester);
+        if (!isMember) {
+            throw new RuntimeException("Only group members can view members list");
+        }
+        return groupMemberRepository.findByGroupWithUser(group)
+                .stream()
+                .map(GroupMemberResponse::from)
+                .toList();
+    }
+
+    @Transactional
+    public void adminAddMember(Long groupId, Long userId) {
+        Group group = findById(groupId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        validateUserCanParticipate(user);
+        if (groupMemberRepository.existsByGroupAndUser(group, user)) {
+            throw new RuntimeException("User is already a member of this group");
+        }
+
+        GroupMember member = new GroupMember();
+        member.setGroup(group);
+        member.setUser(user);
+        member.setRole(GroupMember.Role.MEMBER);
+        groupMemberRepository.save(member);
+    }
+
+    @Transactional
+    public void adminRemoveMember(Long groupId, Long userId) {
+        Group group = findById(groupId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        GroupMember member = groupMemberRepository.findByGroupAndUser(group, user)
+                .orElseThrow(() -> new RuntimeException("Membership not found"));
+
+        if (member.getRole() == GroupMember.Role.OWNER) {
+            throw new RuntimeException("Owner cannot be removed from group");
+        }
+
+        groupMemberRepository.delete(member);
+    }
+
+    @Transactional
+    public void ownerRemoveMember(User requester, Long groupId, Long userId) {
+        Group group = findById(groupId);
+        if (!group.getOwner().getId().equals(requester.getId())) {
+            throw new RuntimeException("Only owner can remove members from this group");
+        }
+        if (requester.getId().equals(userId)) {
+            throw new RuntimeException("Owner cannot remove themselves from group");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        GroupMember member = groupMemberRepository.findByGroupAndUser(group, user)
+                .orElseThrow(() -> new RuntimeException("Membership not found"));
+
+        if (member.getRole() == GroupMember.Role.OWNER) {
+            throw new RuntimeException("Owner cannot be removed from group");
+        }
+
+        groupMemberRepository.delete(member);
     }
 
     private void validateUserCanParticipate(User user) {

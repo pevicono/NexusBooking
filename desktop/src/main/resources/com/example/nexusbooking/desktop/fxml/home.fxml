@@ -1,78 +1,158 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.nexusbooking.desktop.controller.HomeController"
-            styleClass="root-pane"
-            stylesheets="@../css/style.css">
+<HBox xmlns:fx="http://javafx.com/fxml"
+            fx:id="rootShell"
+      fx:controller="com.example.nexusbooking.desktop.controller.HomeController"
+      styleClass="root-pane"
+      stylesheets="@../css/style.css">
 
-    <top>
-        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
-            <Label text="NexusBooking - Usuari" styleClass="app-title-small"/>
-            <Pane HBox.hgrow="ALWAYS"/>
-            <Label fx:id="welcomeLabel" text="Benvingut/da" styleClass="field-value"/>
-            <Button text="Tancar sessio" styleClass="btn-danger" onAction="#logout"/>
-        </HBox>
-    </top>
+        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="240" minWidth="240" maxWidth="240">
+        <VBox alignment="TOP_CENTER" spacing="4">
+            <Label fx:id="sidebarBrandLabel" text="NexusBooking" styleClass="sidebar-brand" alignment="CENTER" maxWidth="Infinity"/>
+            <HBox alignment="CENTER" maxWidth="Infinity">
+                <ImageView fx:id="sidebarFooterLogoImage" fitWidth="24" fitHeight="24" preserveRatio="true"/>
+            </HBox>
+        </VBox>
 
-    <center>
-        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
-            <VBox spacing="15">
-                <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
-                </padding>
+        <Button fx:id="navDashboardButton" text="Dashboard" styleClass="sidebar-item,nav-button-active" maxWidth="Infinity" onAction="#showDashboardPage"/>
+        <Button fx:id="navBookingsButton" text="Reserves" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showBookingsPage"/>
+        <Button fx:id="navGroupsButton" text="Grups" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showGroupsPage"/>
 
-                <!-- Summary Cards -->
-                <HBox spacing="12" alignment="CENTER_LEFT">
-                    <Button text="Refrescar" styleClass="btn-secondary" onAction="#refreshAll"/>
-                    <Label fx:id="messageLabel" styleClass="success-label"/>
-                </HBox>
-
-                <HBox spacing="12" alignment="TOP_LEFT">
-                    <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="Reserves futures" styleClass="section-subtitle"/>
-                        <Label fx:id="upcomingCountLabel" text="0" styleClass="app-title-small"/>
-                    </VBox>
-                    <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
-                        <Label text="Els meus grups" styleClass="section-subtitle"/>
-                        <Label fx:id="groupsCountLabel" text="0" styleClass="app-title-small"/>
-                    </VBox>
-                </HBox>
-
-                <!-- Reserves Section -->
-                <VBox spacing="8">
-                    <Label text="Les meves reserves" styleClass="section-title"/>
-                    <ScrollPane style="-fx-border-color: #ddd; -fx-border-radius: 4;">
-                        <VBox fx:id="bookingsCardsContainer" spacing="8">
-                            <padding>
-                                <Insets top="8" right="8" bottom="8" left="8"/>
-                            </padding>
-                        </VBox>
-                    </ScrollPane>
-                    <HBox spacing="8">
-                        <Button fx:id="createBookingButton" text="Crear reserva" styleClass="btn-primary" onAction="#showCreateBookingDialog" style="-fx-padding: 8 16 8 16;"/>
-                    </HBox>
-                </VBox>
-
-                <!-- Grups Section -->
-                <VBox spacing="8">
-                    <Label text="Els meus grups" styleClass="section-title"/>
-                    <ScrollPane style="-fx-border-color: #ddd; -fx-border-radius: 4;">
-                        <VBox fx:id="groupsCardsContainer" spacing="8">
-                            <padding>
-                                <Insets top="8" right="8" bottom="8" left="8"/>
-                            </padding>
-                        </VBox>
-                    </ScrollPane>
-                    <HBox spacing="8">
-                        <Button fx:id="createGroupButton" text="Crear grup" styleClass="btn-primary" onAction="#showCreateGroupDialog" style="-fx-padding: 8 16 8 16;"/>
-                        <TextField fx:id="joinGroupId" promptText="Codi del grup per unir-me" styleClass="field" prefHeight="34" prefWidth="250"/>
-                        <Button fx:id="joinGroupButton" text="Unir-me" styleClass="btn-secondary" onAction="#joinGroup" style="-fx-padding: 8 16 8 16;"/>
-                    </HBox>
-                </VBox>
+        <Region VBox.vgrow="ALWAYS"/>
+        <VBox alignment="BOTTOM_CENTER" spacing="6">
+            <VBox fx:id="sidebarFooterMetaBox" alignment="BOTTOM_CENTER" spacing="2">
+                <Label fx:id="sidebarSubtitleLabel" text="Àrea usuari" alignment="CENTER" styleClass="field-label"/>
+                <Label text="v1.0.0" alignment="CENTER" styleClass="sidebar-version"/>
             </VBox>
-        </ScrollPane>
-    </center>
-</BorderPane>
+        </VBox>
+    </VBox>
+
+    <VBox HBox.hgrow="ALWAYS" spacing="0">
+        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
+            <Button fx:id="menuToggleButton" text="" styleClass="btn-secondary,menu-toggle-button" onAction="#toggleSidebar"/>
+            <Label fx:id="pageTitleLabel" text="Dashboard" styleClass="app-title-small"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="welcomeLabel" text="Benvingut/da" styleClass="field-value"/>
+            <Button fx:id="logoutButton" text="Tancar sessió" styleClass="btn-danger" onAction="#logout"/>
+        </HBox>
+
+        <StackPane fx:id="pageStack" styleClass="page-stack" VBox.vgrow="ALWAYS">
+
+            <VBox fx:id="dashboardPage" spacing="16" styleClass="content-area">
+                <HBox spacing="14" alignment="TOP_LEFT">
+                    <VBox styleClass="metric-card" spacing="8" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+                        <HBox alignment="CENTER">
+                            <StackPane fx:id="metricIconBookings" styleClass="metric-icon-circle,metric-icon-blue" prefWidth="70" prefHeight="70"/>
+                        </HBox>
+                        <Label text="Reserves futures" styleClass="metric-label" alignment="CENTER"/>
+                        <Label fx:id="upcomingCountLabel" text="0" styleClass="metric-value"/>
+                        <Label text="Pròximes 48h" styleClass="metric-trend"/>
+                    </VBox>
+                    <VBox styleClass="metric-card" spacing="8" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+                        <HBox alignment="CENTER">
+                            <StackPane fx:id="metricIconGroups" styleClass="metric-icon-circle,metric-icon-green" prefWidth="70" prefHeight="70"/>
+                        </HBox>
+                        <Label text="Els meus grups" styleClass="metric-label" alignment="CENTER"/>
+                        <Label fx:id="groupsCountLabel" text="0" styleClass="metric-value"/>
+                        <Label text="Actius" styleClass="metric-trend"/>
+                    </VBox>
+                    <VBox styleClass="metric-card" spacing="8" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+                        <HBox alignment="CENTER">
+                            <StackPane fx:id="metricIconFacilities" styleClass="metric-icon-circle,metric-icon-purple" prefWidth="70" prefHeight="70"/>
+                        </HBox>
+                        <Label text="Instal·lacions" styleClass="metric-label" alignment="CENTER"/>
+                        <Label fx:id="dashboardFacilitiesCountLabel" text="0" styleClass="metric-value"/>
+                        <Label text="Disponibles" styleClass="metric-trend"/>
+                    </VBox>
+                    <VBox styleClass="metric-card" spacing="8" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+                        <HBox alignment="CENTER">
+                            <StackPane fx:id="metricIconMonthly" styleClass="metric-icon-circle,metric-icon-orange" prefWidth="70" prefHeight="70"/>
+                        </HBox>
+                        <Label text="Reserves del mes" styleClass="metric-label" alignment="CENTER"/>
+                        <Label fx:id="dashboardBookingsMonthCountLabel" text="0" styleClass="metric-value"/>
+                        <Label text="Aquest mes" styleClass="metric-trend"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="14" alignment="TOP_LEFT">
+                    <VBox styleClass="panel-card" spacing="10" HBox.hgrow="ALWAYS">
+                        <Label text="Accions ràpides" styleClass="section-title"/>
+                        <Button fx:id="createIncidentButton" text="Crear incidència" styleClass="btn-primary" onAction="#showCreateIncidentDialog" maxWidth="240"/>
+                        <Button text="Nova reserva" styleClass="btn-secondary" onAction="#showCreateBookingDialog" maxWidth="240"/>
+                        <Button text="Veure grups" styleClass="btn-secondary" onAction="#showGroupsPage" maxWidth="240"/>
+                    </VBox>
+
+                    <VBox styleClass="panel-card" spacing="10" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="Pròximes reserves" styleClass="section-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Veure" styleClass="btn-secondary" onAction="#showBookingsPage"/>
+                        </HBox>
+                        <VBox fx:id="upcomingBookingsContainer" spacing="8"/>
+                    </VBox>
+
+                    <VBox styleClass="panel-card" spacing="10" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="Els meus grups" styleClass="section-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Veure" styleClass="btn-secondary" onAction="#showGroupsPage"/>
+                        </HBox>
+                        <VBox fx:id="dashboardGroupsContainer" spacing="8"/>
+                    </VBox>
+                </HBox>
+
+                <VBox styleClass="panel-card" spacing="10" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="Instal·lacions disponibles" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Reservar" styleClass="btn-secondary" onAction="#showCreateBookingDialog"/>
+                    </HBox>
+                    <VBox fx:id="availableFacilitiesContainer" spacing="8"/>
+                </VBox>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Missatge:" styleClass="field-label"/>
+                        <Label fx:id="messageLabel" styleClass="success-label" wrapText="true"/>
+                </HBox>
+            </VBox>
+
+            <VBox fx:id="bookingsPage" spacing="10" styleClass="content-area">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Les meves reserves" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="createBookingButton" text="Crear reserva" styleClass="btn-primary" onAction="#showCreateBookingDialog"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="section-scroll">
+                    <VBox fx:id="bookingsCardsContainer" spacing="10" styleClass="list-wrapper">
+                        <padding>
+                            <Insets top="4" right="4" bottom="4" left="4"/>
+                        </padding>
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+
+            <VBox fx:id="groupsPage" spacing="10" styleClass="content-area">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Els meus grups" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="createGroupButton" text="Crear grup" styleClass="btn-primary" onAction="#showCreateGroupDialog"/>
+                </HBox>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="section-scroll">
+                    <VBox fx:id="groupsCardsContainer" spacing="10" styleClass="list-wrapper">
+                        <padding>
+                            <Insets top="4" right="4" bottom="4" left="4"/>
+                        </padding>
+                    </VBox>
+                </ScrollPane>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="joinGroupId" promptText="Codi del grup" styleClass="field" prefWidth="240"/>
+                    <Button fx:id="joinGroupButton" text="Unir-me" styleClass="btn-secondary" onAction="#joinGroup"/>
+                </HBox>
+            </VBox>
+        </StackPane>
+    </VBox>
+</HBox>

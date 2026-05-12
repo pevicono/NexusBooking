@@ -113,6 +113,14 @@ public class ApiClient {
         sendAuthorizedRequest("/api/groups/" + groupId + "/leave", "POST", null);
     }
 
+    public JsonArray getGroupMembers(long groupId) throws IOException, ApiException {
+        return gson.fromJson(sendAuthorizedRequest("/api/groups/" + groupId + "/members", "GET", null), JsonArray.class);
+    }
+
+    public void removeGroupMember(long groupId, long userId) throws IOException, ApiException {
+        sendAuthorizedRequest("/api/groups/" + groupId + "/members/" + userId, "DELETE", null);
+    }
+
     public JsonObject getAdminDashboard() throws IOException, ApiException {
         return gson.fromJson(sendAuthorizedRequest("/api/admin/dashboard", "GET", null), JsonObject.class);
     }
@@ -351,6 +359,18 @@ public class ApiClient {
         body.addProperty("name", name);
         body.addProperty("description", description == null ? "" : description);
         sendAuthorizedRequest("/api/admin/groups/" + groupId, "PUT", body);
+    }
+
+    public JsonArray adminGetGroupMembers(long groupId) throws IOException, ApiException {
+        return gson.fromJson(sendAuthorizedRequest("/api/admin/groups/" + groupId + "/members", "GET", null), JsonArray.class);
+    }
+
+    public void adminAddGroupMember(long groupId, long userId) throws IOException, ApiException {
+        sendAuthorizedRequest("/api/admin/groups/" + groupId + "/members/" + userId, "POST", null);
+    }
+
+    public void adminRemoveGroupMember(long groupId, long userId) throws IOException, ApiException {
+        sendAuthorizedRequest("/api/admin/groups/" + groupId + "/members/" + userId, "DELETE", null);
     }
 
     private String sendAuthorizedRequest(String path, String method, JsonObject body) throws IOException, ApiException {

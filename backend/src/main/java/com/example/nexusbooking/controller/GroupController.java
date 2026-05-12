@@ -132,4 +132,34 @@ public class GroupController {
             return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
         }
     }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @GetMapping("/{id}/members")
+    @Operation(summary = "List group members (group members only)")
+    public ResponseEntity<?> members(@AuthenticationPrincipal UserDetails userDetails,
+                                     @PathVariable Long id) {
+        try {
+            User user = userService.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            return ResponseEntity.ok(groupService.listMembersForUser(user, id));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
+
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @DeleteMapping("/{id}/members/{userId}")
+    @Operation(summary = "Remove member from group (owner only)")
+    public ResponseEntity<?> removeMember(@AuthenticationPrincipal UserDetails userDetails,
+                                          @PathVariable Long id,
+                                          @PathVariable Long userId) {
+        try {
+            User user = userService.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            groupService.ownerRemoveMember(user, id, userId);
+            return ResponseEntity.ok(new MessageResponse("Member removed successfully"));
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(new MessageResponse(ex.getMessage()));
+        }
+    }
 }

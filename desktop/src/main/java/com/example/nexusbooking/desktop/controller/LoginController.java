@@ -6,10 +6,17 @@ import com.example.nexusbooking.desktop.model.UserResponse;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
 import javafx.scene.layout.VBox;
 
 public class LoginController {
 
+    @FXML private ImageView logoImage;
     @FXML private Button tabLogin;
     @FXML private Button tabRegister;
 
@@ -23,6 +30,15 @@ public class LoginController {
     @FXML private PasswordField regPassword;
     @FXML private PasswordField regConfirm;
     @FXML private Label regError;
+
+    @FXML
+    private void initialize() {
+        if (logoImage != null) {
+            Image source = new Image(getClass().getResourceAsStream("/com/example/nexusbooking/desktop/images/logo.png"));
+            logoImage.setImage(createWhiteLogo(source));
+        }
+        showLogin();
+    }
 
     @FXML
     private void showLogin() {
@@ -136,6 +152,37 @@ public class LoginController {
         Thread worker = new Thread(task, "desktop-login-async");
         worker.setDaemon(true);
         worker.start();
+    }
+
+    private WritableImage createWhiteLogo(Image source) {
+        int width = (int) source.getWidth();
+        int height = (int) source.getHeight();
+        WritableImage output = new WritableImage(width, height);
+        PixelReader reader = source.getPixelReader();
+        PixelWriter writer = output.getPixelWriter();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Color color = reader.getColor(x, y);
+                double max = Math.max(color.getRed(), Math.max(color.getGreen(), color.getBlue()));
+                double min = Math.min(color.getRed(), Math.min(color.getGreen(), color.getBlue()));
+                double saturation = max <= 0 ? 0 : (max - min) / max;
+                double luminance = (color.getRed() + color.getGreen() + color.getBlue()) / 3.0;
+
+                double alphaFromLuma = (1.0 - luminance) * 2.9;
+                double alphaFromSaturation = saturation * 2.1;
+                double alpha = Math.max(alphaFromLuma, alphaFromSaturation) * color.getOpacity();
+                alpha = Math.max(0.0, Math.min(1.0, alpha));
+
+                if (alpha < 0.12) {
+                    writer.setColor(x, y, Color.TRANSPARENT);
+                } else {
+                    writer.setColor(x, y, new Color(1, 1, 1, alpha));
+                }
+            }
+        }
+
+        return output;
     }
     
     /**

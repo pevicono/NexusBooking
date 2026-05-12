@@ -426,6 +426,63 @@ class FullFlowsE2EIntegrationTest {
         assertThat(dashboardStatus).isIn(401, 403);
     }
 
+    @Test
+    void groupMembersCanBeViewed() throws Exception {
+        String adminToken = bootstrapAdminAndGetToken();
+        register("owner@example.com", "Password123!");
+        register("member1@example.com", "Password123!");
+
+        String ownerToken = loginAndGetToken("owner@example.com", "Password123!");
+        String member1Token = loginAndGetToken("member1@example.com", "Password123!");
+
+        // Owner creates a group
+        long groupId = createGroupByUser(ownerToken, "Members Group", "Test group");
+        String joinCode = getGroupJoinCodeForUser(ownerToken, groupId);
+
+        // Member joins the group
+        mockMvc.perform(withAuth(post("/api/groups/join-by-code")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("code", joinCode), member1Token))
+                .andExpect(status().isOk());
+
+        // Members can view members list
+        mockMvc.perform(withAuth(get("/api/groups/{id}/members", groupId), ownerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2));
+
+        mockMvc.perform(withAuth(get("/api/groups/{id}/members", groupId), member1Token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void userBookingAndIncidentFlow_shouldWorkTogether() throws Exception {
+        String adminToken = bootstrapAdminAndGetToken();
+        register("user@example.com", "Password123!");
+        String userToken = loginAndGetToken("user@example.com", "Password123!");
+
+        long facilityId = createFacility(adminToken, "Incident Test Facility");
+        long groupId = createGroupByUser(userToken, "Incident Test Group", "Group for incidents");
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.plusHours(2);
+        LocalDateTime end = now.plusHours(3);
+
+        // User creates a booking
+        long bookingId = createBookingByUser(userToken, facilityId, groupId, start, end, "Test booking");
+        assertThat(bookingId).isGreaterThan(0);
+
+        // User can retrieve their bookings
+        mockMvc.perform(withAuth(get("/api/bookings/mine"), userToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+
+        // User can create an incident for the facility
+        long incidentId = createIncident(userToken, facilityId, "Damage in facility");
+        assertThat(incidentId).isGreaterThan(0);
+    }
+
     private String bootstrapAdminAndGetToken() throws Exception {
         register("admin@example.com", "password123");
         User admin = userRepository.findByEmail("admin@example.com").orElseThrow();

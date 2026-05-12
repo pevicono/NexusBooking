@@ -1,184 +1,246 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.nexusbooking.desktop.controller.BackofficeController"
-            styleClass="root-pane"
-            stylesheets="@../css/style.css">
+<HBox xmlns:fx="http://javafx.com/fxml"
+            fx:id="rootShell"
+      fx:controller="com.example.nexusbooking.desktop.controller.BackofficeController"
+      styleClass="root-pane"
+      stylesheets="@../css/style.css">
 
-    <top>
-        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
-            <Label text="NexusBooking - Backoffice" styleClass="app-title-small"/>
-            <Pane HBox.hgrow="ALWAYS"/>
-            <Label fx:id="statsLabel" text="Metrics" styleClass="field-value"/>
-            <Button text="Tancar sessio" styleClass="btn-danger" onAction="#logout"/>
-        </HBox>
-    </top>
-
-    <center>
-        <VBox spacing="10">
-            <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-            </padding>
-
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Button text="Refrescar" styleClass="btn-primary" onAction="#refreshAll" style="-fx-padding: 8 16 8 16;"/>
-                <Label fx:id="messageLabel" styleClass="success-label" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+        <VBox fx:id="sidebar" styleClass="sidebar" prefWidth="240" minWidth="240" maxWidth="240">
+        <VBox alignment="TOP_CENTER" spacing="4">
+            <Label fx:id="sidebarBrandLabel" text="NexusBooking" styleClass="sidebar-brand" alignment="CENTER" maxWidth="Infinity"/>
+            <HBox alignment="CENTER" maxWidth="Infinity">
+                <ImageView fx:id="sidebarFooterLogoImage" fitWidth="24" fitHeight="24" preserveRatio="true"/>
             </HBox>
-
-            <TabPane fx:id="backofficeTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
-
-                <!-- USUARIS TAB -->
-                <Tab text="Usuaris">
-                    <content>
-                        <VBox spacing="10">
-                            <padding>
-                                <Insets top="10" right="10" bottom="10" left="10"/>
-                            </padding>
-                            <HBox spacing="8">
-                                <Button text="Crear usuari" styleClass="btn-primary" onAction="#showCreateUserDialog" style="-fx-padding: 8 16 8 16;"/>
-                                <Pane HBox.hgrow="ALWAYS"/>
-                            </HBox>
-                            <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn text="ID" prefWidth="50" fx:id="usersColId"/>
-                                    <TableColumn text="Email" prefWidth="200" fx:id="usersColEmail"/>
-                                    <TableColumn text="Role" prefWidth="80" fx:id="usersColRole"/>
-                                    <TableColumn text="Actiu" prefWidth="60" fx:id="usersColActive"/>
-                                    <TableColumn text="Accions" prefWidth="120" fx:id="usersColActions"/>
-                                </columns>
-                            </TableView>
-                        </VBox>
-                    </content>
-                </Tab>
-
-                <!-- INSTALACIONS TAB -->
-                <Tab text="Instal·lacions">
-                    <content>
-                        <VBox spacing="10">
-                            <padding>
-                                <Insets top="10" right="10" bottom="10" left="10"/>
-                            </padding>
-                            <HBox spacing="8">
-                                <Button text="Crear instal·lacio" styleClass="btn-primary" onAction="#showCreateFacilityDialog" style="-fx-padding: 8 16 8 16;"/>
-                                <Pane HBox.hgrow="ALWAYS"/>
-                            </HBox>
-                            <TableView fx:id="facilitiesTable" VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn text="ID" prefWidth="50" fx:id="facColId"/>
-                                    <TableColumn text="Nom" prefWidth="150" fx:id="facColName"/>
-                                    <TableColumn text="Tipus" prefWidth="100" fx:id="facColType"/>
-                                    <TableColumn text="Capacitat" prefWidth="80" fx:id="facColCapacity"/>
-                                    <TableColumn text="Localitzacio" prefWidth="150" fx:id="facColLocation"/>
-                                    <TableColumn text="Accions" prefWidth="120" fx:id="facColActions"/>
-                                </columns>
-                            </TableView>
-                        </VBox>
-                    </content>
-                </Tab>
-
-                <!-- RESERVES TAB -->
-                <Tab text="Reserves">
-                    <content>
-                        <VBox spacing="10">
-                            <padding>
-                                <Insets top="10" right="10" bottom="10" left="10"/>
-                            </padding>
-                            <HBox spacing="8">
-                                <Button text="Crear reserva" styleClass="btn-primary" onAction="#showCreateBookingDialog" style="-fx-padding: 8 16 8 16;"/>
-                                <Pane HBox.hgrow="ALWAYS"/>
-                            </HBox>
-                            <TableView fx:id="bookingsTable" VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn text="ID" prefWidth="50" fx:id="bookColId"/>
-                                    <TableColumn text="Usuari" prefWidth="150" fx:id="bookColUser"/>
-                                    <TableColumn text="Instal·lacio" prefWidth="150" fx:id="bookColFacility"/>
-                                    <TableColumn text="Inici" prefWidth="180" fx:id="bookColStart"/>
-                                    <TableColumn text="Final" prefWidth="180" fx:id="bookColEnd"/>
-                                    <TableColumn text="Estat" prefWidth="100" fx:id="bookColStatus"/>
-                                    <TableColumn text="Accions" prefWidth="120" fx:id="bookColActions"/>
-                                </columns>
-                            </TableView>
-                        </VBox>
-                    </content>
-                </Tab>
-
-                <!-- INCIDENCIES TAB -->
-                <Tab text="Incidències">
-                    <content>
-                        <VBox spacing="10">
-                            <padding>
-                                <Insets top="10" right="10" bottom="10" left="10"/>
-                            </padding>
-                            <HBox spacing="8">
-                                <Button text="Crear incidència" styleClass="btn-primary" onAction="#showCreateIncidentDialog" style="-fx-padding: 8 16 8 16;"/>
-                                <Pane HBox.hgrow="ALWAYS"/>
-                            </HBox>
-                            <TableView fx:id="incidentsTable" VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn text="ID" prefWidth="50" fx:id="incColId"/>
-                                    <TableColumn text="Titol" prefWidth="150" fx:id="incColTitle"/>
-                                    <TableColumn text="Instal·lacio" prefWidth="130" fx:id="incColFacility"/>
-                                    <TableColumn text="Estat" prefWidth="110" fx:id="incColStatus"/>
-                                    <TableColumn text="Data" prefWidth="150" fx:id="incColDate"/>
-                                    <TableColumn text="Accions" prefWidth="120" fx:id="incColActions"/>
-                                </columns>
-                            </TableView>
-                        </VBox>
-                    </content>
-                </Tab>
-
-                <!-- GRUPS TAB -->
-                <Tab text="Grups">
-                    <content>
-                        <VBox spacing="10">
-                            <padding>
-                                <Insets top="10" right="10" bottom="10" left="10"/>
-                            </padding>
-                            <HBox spacing="8">
-                                <Button fx:id="createAdminGroupButton" text="Crear grup" styleClass="btn-primary" onAction="#showCreateGroupDialog" style="-fx-padding: 8 16 8 16;"/>
-                                <Pane HBox.hgrow="ALWAYS"/>
-                            </HBox>
-                            <TableView fx:id="groupsTable" VBox.vgrow="ALWAYS">
-                                <columns>
-                                    <TableColumn text="ID" prefWidth="50" fx:id="grpColId"/>
-                                    <TableColumn text="Nom" prefWidth="200" fx:id="grpColName"/>
-                                    <TableColumn text="Propietari" prefWidth="160" fx:id="grpColOwner"/>
-                                    <TableColumn text="Membres" prefWidth="80" fx:id="grpColMembers"/>
-                                    <TableColumn text="Accions" prefWidth="120" fx:id="grpColActions"/>
-                                </columns>
-                            </TableView>
-                        </VBox>
-                    </content>
-                </Tab>
-
-                <!-- CALENDARI TAB -->
-                <Tab text="Calendari">
-                    <content>
-                        <VBox spacing="10">
-                            <padding>
-                                <Insets top="10" right="10" bottom="10" left="10"/>
-                            </padding>
-                            <HBox spacing="12" alignment="CENTER_LEFT">
-                                <Button text="◀" onAction="#calendarPrevMonth" style="-fx-font-size: 14; -fx-padding: 6 12 6 12;"/>
-                                <Label fx:id="calendarMonthLabel" styleClass="app-title-small" alignment="CENTER" prefWidth="170" minWidth="170"/>
-                                <Button text="▶" onAction="#calendarNextMonth" style="-fx-font-size: 14; -fx-padding: 6 12 6 12;"/>
-                                <Label text="Any:" styleClass="field-label"/>
-                                <ComboBox fx:id="calendarYearCombo" prefWidth="110" onAction="#calendarYearChanged"/>
-                                <Pane HBox.hgrow="ALWAYS"/>
-                                <Label text="Instal·lació:" styleClass="field-label"/>
-                                <ComboBox fx:id="calendarFacilityCombo" prefWidth="200" onAction="#refreshCalendarView"/>
-                            </HBox>
-                            <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
-                                <GridPane fx:id="calendarGrid" hgap="1" vgap="1" style="-fx-padding: 5;"/>
-                            </ScrollPane>
-                        </VBox>
-                    </content>
-                </Tab>
-
-            </TabPane>
         </VBox>
-    </center>
-</BorderPane>
+
+        <Button fx:id="navDashboardButton" text="Dashboard" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showDashboardPage"/>
+        <Button fx:id="navUsersButton" text="Usuaris" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showUsersPage"/>
+        <Button fx:id="navFacilitiesButton" text="Instal·lacions" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showFacilitiesPage"/>
+        <Button fx:id="navBookingsButton" text="Reserves" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showBookingsPage"/>
+        <Button fx:id="navGroupsButton" text="Grups" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showGroupsPage"/>
+        <Button fx:id="navIncidentsButton" text="Incidències" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showIncidentsPage"/>
+        <Button fx:id="navCalendarButton" text="Calendari" styleClass="sidebar-item" maxWidth="Infinity" onAction="#showCalendarPage"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+        <VBox alignment="BOTTOM_CENTER" spacing="6">
+            <VBox fx:id="sidebarFooterMetaBox" alignment="BOTTOM_CENTER" spacing="2">
+                <Label text="Backoffice" alignment="CENTER" styleClass="field-label"/>
+                <Label text="v1.0.0" alignment="CENTER" styleClass="sidebar-version"/>
+            </VBox>
+        </VBox>
+    </VBox>
+
+    <VBox HBox.hgrow="ALWAYS" spacing="0">
+        <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
+            <Button fx:id="menuToggleButton" text="" styleClass="btn-secondary,menu-toggle-button" onAction="#toggleSidebar"/>
+            <Label fx:id="pageTitleLabel" text="Dashboard" styleClass="app-title-small"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="messageLabel" styleClass="success-label" maxWidth="520"/>
+            <Label fx:id="currentUserLabel" text="Usuari" styleClass="current-user-pill"/>
+            <Button fx:id="refreshButton" text="Refrescar" styleClass="btn-secondary" onAction="#refreshAll"/>
+            <Button fx:id="logoutButton" text="Tancar sessió" styleClass="btn-danger" onAction="#logout"/>
+        </HBox>
+
+        <StackPane fx:id="pageStack" styleClass="page-stack" VBox.vgrow="ALWAYS">
+
+            <VBox fx:id="dashboardPage" spacing="16" styleClass="content-area" maxWidth="Infinity" maxHeight="Infinity">
+                <ScrollPane fitToWidth="true" styleClass="section-scroll" VBox.vgrow="ALWAYS" maxWidth="Infinity" maxHeight="Infinity">
+                    <VBox spacing="16">
+                        <!-- Metric Cards Row -->
+                        <HBox spacing="14" alignment="TOP_LEFT">
+                            <VBox styleClass="metric-card" spacing="12" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+                                <HBox alignment="CENTER">
+                                    <StackPane fx:id="metricIconUsers" styleClass="metric-icon-circle,metric-icon-blue" prefWidth="70" prefHeight="70"/>
+                                </HBox>
+                                <Label text="Usuaris" styleClass="metric-label" alignment="CENTER"/>
+                                <Label fx:id="dashboardUsersCountLabel" text="0" styleClass="metric-value" alignment="CENTER"/>
+                                <Label fx:id="dashboardUsersTrendLabel" text="Inactius: 0" styleClass="metric-trend" alignment="CENTER"/>
+                            </VBox>
+                            <VBox styleClass="metric-card" spacing="12" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+                                <HBox alignment="CENTER">
+                                    <StackPane fx:id="metricIconBookings" styleClass="metric-icon-circle,metric-icon-green" prefWidth="70" prefHeight="70"/>
+                                </HBox>
+                                <Label text="Reserves" styleClass="metric-label" alignment="CENTER"/>
+                                <Label fx:id="dashboardBookingsCountLabel" text="0" styleClass="metric-value" alignment="CENTER"/>
+                                <Label fx:id="dashboardBookingsTrendLabel" text="Completades: 0 · Pendents: 0 · Cancel·lades: 0" styleClass="metric-trend" alignment="CENTER"/>
+                            </VBox>
+                            <VBox styleClass="metric-card" spacing="12" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+                                <HBox alignment="CENTER">
+                                    <StackPane fx:id="metricIconGroups" styleClass="metric-icon-circle,metric-icon-purple" prefWidth="70" prefHeight="70"/>
+                                </HBox>
+                                <Label text="Grups" styleClass="metric-label" alignment="CENTER"/>
+                                <Label fx:id="dashboardGroupsCountLabel" text="0" styleClass="metric-value" alignment="CENTER"/>
+                                <Label fx:id="dashboardGroupsTrendLabel" text="Amb més d'1 membre: 0" styleClass="metric-trend" alignment="CENTER"/>
+                            </VBox>
+                            <VBox styleClass="metric-card" spacing="12" HBox.hgrow="ALWAYS" alignment="TOP_CENTER">
+                                <HBox alignment="CENTER">
+                                    <StackPane fx:id="metricIconIncidents" styleClass="metric-icon-circle,metric-icon-orange" prefWidth="70" prefHeight="70"/>
+                                </HBox>
+                                <Label text="Incidències" styleClass="metric-label" alignment="CENTER"/>
+                                <Label fx:id="dashboardIncidentsCountLabel" text="0" styleClass="metric-value" alignment="CENTER"/>
+                                <Label fx:id="dashboardIncidentsTrendLabel" text="Tancades: 0" styleClass="metric-trend" alignment="CENTER"/>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Content Area -->
+                        <HBox spacing="14" alignment="TOP_LEFT">
+                            <!-- Reserves pròximes -->
+                            <VBox styleClass="panel-card" spacing="10" HBox.hgrow="ALWAYS">
+                                <Label text="Reserves pròximes" styleClass="section-title"/>
+                                <VBox fx:id="upcomingBookingsContainer" spacing="8"/>
+                                <Button text="Veure totes les reserves" styleClass="btn-secondary" onAction="#showBookingsPage"/>
+                            </VBox>
+
+                            <!-- Activitat recent -->
+                            <VBox styleClass="panel-card" spacing="10" HBox.hgrow="ALWAYS">
+                                <Label text="Activitat recent" styleClass="section-title"/>
+                                <VBox fx:id="recentActivityContainer" spacing="8"/>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Summary Row -->
+                        <HBox spacing="14" alignment="TOP_LEFT">
+                            <!-- Resum ràpid -->
+                            <VBox styleClass="panel-card" spacing="10" HBox.hgrow="ALWAYS" prefHeight="250">
+                                <Label text="Resum ràpid" styleClass="section-title"/>
+                                <VBox fx:id="chartContainer" VBox.vgrow="ALWAYS" alignment="CENTER"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+
+            <VBox fx:id="usersPage" spacing="10" styleClass="content-area" maxWidth="Infinity" maxHeight="Infinity">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Usuaris" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="createUserButton" text="Crear usuari" styleClass="btn-primary" onAction="#showCreateUserDialog"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="list-toolbar-row">
+                    <TextField fx:id="usersSearchField" promptText="Cercar per nom, email o rol..." HBox.hgrow="ALWAYS" styleClass="list-search-field"/>
+                </HBox>
+                <VBox styleClass="list-surface" VBox.vgrow="ALWAYS">
+                    <HBox styleClass="admin-list-header-row">
+                        <Label fx:id="usersHeaderId" text="ID" styleClass="admin-list-header-cell" onMouseClicked="#sortUsersById"/>
+                        <Label fx:id="usersHeaderName" text="Nom" styleClass="admin-list-header-cell" onMouseClicked="#sortUsersByName"/>
+                        <Label fx:id="usersHeaderEmail" text="Email" styleClass="admin-list-header-cell" onMouseClicked="#sortUsersByEmail"/>
+                        <Label fx:id="usersHeaderRole" text="Rol" styleClass="admin-list-header-cell" onMouseClicked="#sortUsersByRole"/>
+                        <Label fx:id="usersHeaderStatus" text="Estat" styleClass="admin-list-header-cell" onMouseClicked="#sortUsersByStatus"/>
+                        <Label fx:id="usersHeaderActions" text="Accions" styleClass="admin-list-header-cell"/>
+                    </HBox>
+                    <ListView fx:id="usersList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="facilitiesPage" spacing="10" styleClass="content-area" maxWidth="Infinity" maxHeight="Infinity">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Instal·lacions" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="createFacilityButton" text="Crear instal·lació" styleClass="btn-primary" onAction="#showCreateFacilityDialog"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="list-toolbar-row">
+                    <TextField fx:id="facilitiesSearchField" promptText="Cercar per nom, tipus o ubicació..." HBox.hgrow="ALWAYS" styleClass="list-search-field"/>
+                </HBox>
+                <VBox styleClass="list-surface" VBox.vgrow="ALWAYS">
+                    <HBox styleClass="admin-list-header-row">
+                        <Label fx:id="facilitiesHeaderId" text="ID" styleClass="admin-list-header-cell" onMouseClicked="#sortFacilitiesById"/>
+                        <Label fx:id="facilitiesHeaderName" text="Nom" styleClass="admin-list-header-cell" onMouseClicked="#sortFacilitiesByName"/>
+                        <Label fx:id="facilitiesHeaderTypeCapacity" text="Tipus / Capacitat" styleClass="admin-list-header-cell" onMouseClicked="#sortFacilitiesByTypeCapacity"/>
+                        <Label fx:id="facilitiesHeaderLocation" text="Ubicació" styleClass="admin-list-header-cell" onMouseClicked="#sortFacilitiesByLocation"/>
+                        <Label fx:id="facilitiesHeaderStatus" text="Estat" styleClass="admin-list-header-cell" onMouseClicked="#sortFacilitiesByStatus"/>
+                        <Label fx:id="facilitiesHeaderActions" text="Accions" styleClass="admin-list-header-cell"/>
+                    </HBox>
+                    <ListView fx:id="facilitiesList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="bookingsPage" spacing="10" styleClass="content-area" maxWidth="Infinity" maxHeight="Infinity">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Reserves" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="createBookingButton" text="Crear reserva" styleClass="btn-primary" onAction="#showCreateBookingDialog"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="list-toolbar-row">
+                    <TextField fx:id="bookingsSearchField" promptText="Cercar per instal·lació, usuari o estat..." HBox.hgrow="ALWAYS" styleClass="list-search-field"/>
+                </HBox>
+                <VBox styleClass="list-surface" VBox.vgrow="ALWAYS">
+                    <HBox styleClass="admin-list-header-row">
+                        <Label fx:id="bookingsHeaderId" text="ID" styleClass="admin-list-header-cell" onMouseClicked="#sortBookingsById"/>
+                        <Label fx:id="bookingsHeaderFacility" text="Instal·lació" styleClass="admin-list-header-cell" onMouseClicked="#sortBookingsByFacility"/>
+                        <Label fx:id="bookingsHeaderUser" text="Usuari" styleClass="admin-list-header-cell" onMouseClicked="#sortBookingsByUser"/>
+                        <Label fx:id="bookingsHeaderStart" text="Inici" styleClass="admin-list-header-cell" onMouseClicked="#sortBookingsByStart"/>
+                        <Label fx:id="bookingsHeaderStatus" text="Estat" styleClass="admin-list-header-cell" onMouseClicked="#sortBookingsByStatus"/>
+                        <Label fx:id="bookingsHeaderActions" text="Accions" styleClass="admin-list-header-cell"/>
+                    </HBox>
+                    <ListView fx:id="bookingsList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="incidentsPage" spacing="10" styleClass="content-area" maxWidth="Infinity" maxHeight="Infinity">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Incidències" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="createIncidentButton" text="Crear incidència" styleClass="btn-primary" onAction="#showCreateIncidentDialog"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="list-toolbar-row">
+                    <TextField fx:id="incidentsSearchField" promptText="Cercar per títol, instal·lació o estat..." HBox.hgrow="ALWAYS" styleClass="list-search-field"/>
+                </HBox>
+                <VBox styleClass="list-surface" VBox.vgrow="ALWAYS">
+                    <HBox styleClass="admin-list-header-row">
+                        <Label fx:id="incidentsHeaderId" text="ID" styleClass="admin-list-header-cell" onMouseClicked="#sortIncidentsById"/>
+                        <Label fx:id="incidentsHeaderTitle" text="Títol" styleClass="admin-list-header-cell" onMouseClicked="#sortIncidentsByTitle"/>
+                        <Label fx:id="incidentsHeaderFacility" text="Instal·lació" styleClass="admin-list-header-cell" onMouseClicked="#sortIncidentsByFacility"/>
+                        <Label fx:id="incidentsHeaderDate" text="Data" styleClass="admin-list-header-cell" onMouseClicked="#sortIncidentsByDate"/>
+                        <Label fx:id="incidentsHeaderStatus" text="Estat" styleClass="admin-list-header-cell" onMouseClicked="#sortIncidentsByStatus"/>
+                        <Label fx:id="incidentsHeaderActions" text="Accions" styleClass="admin-list-header-cell"/>
+                    </HBox>
+                    <ListView fx:id="incidentsList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="groupsPage" spacing="10" styleClass="content-area" maxWidth="Infinity" maxHeight="Infinity">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Grups" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="createAdminGroupButton" text="Crear grup" styleClass="btn-primary" onAction="#showCreateGroupDialog"/>
+                </HBox>
+                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="list-toolbar-row">
+                    <TextField fx:id="groupsSearchField" promptText="Cercar per nom, propietari o codi..." HBox.hgrow="ALWAYS" styleClass="list-search-field"/>
+                </HBox>
+                <VBox styleClass="list-surface" VBox.vgrow="ALWAYS">
+                    <HBox styleClass="admin-list-header-row">
+                        <Label fx:id="groupsHeaderId" text="ID" styleClass="admin-list-header-cell" onMouseClicked="#sortGroupsById"/>
+                        <Label fx:id="groupsHeaderName" text="Nom" styleClass="admin-list-header-cell" onMouseClicked="#sortGroupsByName"/>
+                        <Label fx:id="groupsHeaderOwner" text="Propietari" styleClass="admin-list-header-cell" onMouseClicked="#sortGroupsByOwner"/>
+                        <Label fx:id="groupsHeaderMembers" text="Membres" styleClass="admin-list-header-cell" onMouseClicked="#sortGroupsByMembers"/>
+                        <Label fx:id="groupsHeaderCode" text="Codi" styleClass="admin-list-header-cell" onMouseClicked="#sortGroupsByCode"/>
+                        <Label fx:id="groupsHeaderActions" text="Accions" styleClass="admin-list-header-cell"/>
+                    </HBox>
+                    <ListView fx:id="groupsList" VBox.vgrow="ALWAYS"/>
+                </VBox>
+            </VBox>
+
+            <VBox fx:id="calendarPage" spacing="10" styleClass="content-area" maxWidth="Infinity" maxHeight="Infinity">
+                <HBox spacing="12" alignment="CENTER_LEFT">
+                    <Label text="Calendari" styleClass="section-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="◀" onAction="#calendarPrevMonth" styleClass="btn-secondary"/>
+                    <Label fx:id="calendarMonthLabel" styleClass="app-title-small" alignment="CENTER" prefWidth="170" minWidth="170"/>
+                    <Button text="▶" onAction="#calendarNextMonth" styleClass="btn-secondary"/>
+                    <Label text="Any:" styleClass="field-label"/>
+                    <ComboBox fx:id="calendarYearCombo" prefWidth="110" onAction="#calendarYearChanged"/>
+                    <Label text="Instal·lació:" styleClass="field-label"/>
+                    <ComboBox fx:id="calendarFacilityCombo" prefWidth="200" onAction="#refreshCalendarView"/>
+                </HBox>
+                <ScrollPane fitToHeight="false" fitToWidth="false" pannable="true" hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" VBox.vgrow="ALWAYS" styleClass="section-scroll">
+                    <GridPane fx:id="calendarGrid" hgap="1" vgap="1" styleClass="calendar-grid"/>
+                </ScrollPane>
+            </VBox>
+        </StackPane>
+    </VBox>
+</HBox>

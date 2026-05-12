@@ -1,4 +1,5 @@
 com\example\nexusbooking\controller\IncidentController.class
+com\example\nexusbooking\security\TokenRevocationService.class
 com\example\nexusbooking\model\Booking$Status.class
 com\example\nexusbooking\dto\MessageResponse.class
 com\example\nexusbooking\model\Incident$Status.class
@@ -37,6 +38,7 @@ com\example\nexusbooking\service\UserService.class
 com\example\nexusbooking\controller\AdminController.class
 com\example\nexusbooking\service\BookingService.class
 com\example\nexusbooking\dto\FacilityRequest.class
+com\example\nexusbooking\security\RequestValidationFilter.class
 com\example\nexusbooking\dto\GroupResponse.class
 com\example\nexusbooking\dto\AuthResponse.class
 com\example\nexusbooking\security\JwtUtils.class
@@ -46,6 +48,7 @@ com\example\nexusbooking\dto\BookingRequest.class
 com\example\nexusbooking\dto\RegisterRequest.class
 com\example\nexusbooking\service\UserDetailsServiceImpl.class
 com\example\nexusbooking\model\Booking.class
+com\example\nexusbooking\config\SecurityConfig.class
 com\example\nexusbooking\model\User.class
 com\example\nexusbooking\dto\FacilityResponse.class
 com\example\nexusbooking\dto\LoginRequest.class
