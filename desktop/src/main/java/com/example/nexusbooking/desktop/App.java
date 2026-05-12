@@ -4,6 +4,7 @@ import com.example.nexusbooking.desktop.api.ApiClient;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -19,12 +20,18 @@ public class App extends Application {
         primaryStage = stage;
         stage.setTitle("NexusBooking");
         stage.setResizable(false);
+
+        URL iconResource = getClass().getResource("/com/example/nexusbooking/desktop/images/nexus_logo_nobg.png");
+        if (iconResource != null) {
+            stage.getIcons().add(new Image(iconResource.toExternalForm()));
+        }
+
         showLogin();
         stage.show();
     }
 
     public static void showLogin() throws Exception {
-        loadScene("/com/example/nexusbooking/desktop/fxml/login.fxml", 480, 560);
+        loadScene("/com/example/nexusbooking/desktop/fxml/login.fxml", 480, 640);
     }
 
     public static void showProfile() throws Exception {

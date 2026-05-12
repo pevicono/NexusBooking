@@ -10,7 +10,7 @@
 
     <top>
         <HBox styleClass="top-bar" alignment="CENTER_LEFT" spacing="12">
-            <Label text="NexusBooking - Backoffice" styleClass="app-title-small"/>
+            <Label text="Backoffice" styleClass="app-title-small"/>
             <Pane HBox.hgrow="ALWAYS"/>
             <Label fx:id="statsLabel" text="Metrics" styleClass="field-value"/>
             <Button text="Tancar sessio" styleClass="btn-danger" onAction="#logout"/>

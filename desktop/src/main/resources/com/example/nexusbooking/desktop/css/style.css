@@ -1,11 +1,19 @@
 .root-pane {
     -fx-background-color: #f0f2f5;
+    -fx-padding: 24;
 }
 
 .app-title {
     -fx-font-size: 26px;
     -fx-font-weight: bold;
     -fx-text-fill: #1e3a5f;
+    -fx-padding: 0 0 16 0;
+}
+
+.app-title-accent {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1E5EFF;
     -fx-padding: 0 0 16 0;
 }
 
@@ -19,7 +27,7 @@
     -fx-background-color: white;
     -fx-background-radius: 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);
-    -fx-padding: 32 36 36 36;
+    -fx-padding: 48 36 48 36;
 }
 
 .tab-bar {
