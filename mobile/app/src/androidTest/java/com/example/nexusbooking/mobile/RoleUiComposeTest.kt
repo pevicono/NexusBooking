@@ -34,6 +34,7 @@ import com.example.nexusbooking.mobile.ui.home.HomeScreen
 import com.example.nexusbooking.mobile.ui.home.HomeViewModel
 import com.example.nexusbooking.mobile.ui.profile.ProfileScreen
 import com.example.nexusbooking.mobile.ui.profile.ProfileViewModel
+import com.example.nexusbooking.mobile.ui.navigation.HomeTab
 import com.example.nexusbooking.mobile.ui.theme.NexusBookingTheme
 import org.junit.Rule
 import org.junit.Test
@@ -58,8 +59,9 @@ class RoleUiComposeTest {
         composeRule.setContent {
             NexusBookingTheme {
                 HomeScreen(
+                    initialTab = HomeTab.DASHBOARD,
+                    onNavigateToTab = {},
                     onOpenProfile = {},
-                    onOpenAdmin = {},
                     viewModel = HomeViewModel(UserRepository(fakeApi), HomeRepository(fakeApi))
                 )
             }
@@ -70,7 +72,7 @@ class RoleUiComposeTest {
         composeRule.onNodeWithText("Instal.lacions").assertIsDisplayed()
         composeRule.onNodeWithText("Reserves").assertIsDisplayed()
         composeRule.onNodeWithText("Grups").assertIsDisplayed()
-        composeRule.onAllNodesWithText("Anar a Backoffice").assertCountEquals(0)
+        composeRule.onAllNodesWithText("Backoffice").assertCountEquals(0)
     }
 
     @Test
@@ -82,8 +84,9 @@ class RoleUiComposeTest {
         composeRule.setContent {
             NexusBookingTheme {
                 HomeScreen(
+                    initialTab = HomeTab.DASHBOARD,
+                    onNavigateToTab = {},
                     onOpenProfile = {},
-                    onOpenAdmin = {},
                     viewModel = HomeViewModel(UserRepository(fakeApi), HomeRepository(fakeApi))
                 )
             }
@@ -91,9 +94,7 @@ class RoleUiComposeTest {
 
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Backoffice").assertIsDisplayed()
-        composeRule.onNodeWithText("Anar a Backoffice").assertIsDisplayed()
-        composeRule.onAllNodesWithText("Instal.lacions").assertCountEquals(0)
-        composeRule.onAllNodesWithText("Crear reserva").assertCountEquals(0)
+        composeRule.onNodeWithText("Instal.lacions").assertIsDisplayed()
     }
 
     @Test
@@ -134,6 +135,7 @@ class RoleUiComposeTest {
             NexusBookingTheme {
                 ProfileScreen(
                     onLogout = {},
+                    onNavigateToTab = {},
                     viewModel = ProfileViewModel(
                         UserRepository(fakeApi),
                         AuthRepository(fakeApi, tokenStore)
