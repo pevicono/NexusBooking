@@ -31,8 +31,6 @@ import com.example.nexusbooking.mobile.ui.components.NexusSecondaryButton
 import com.example.nexusbooking.mobile.ui.components.NexusTextField
 import com.example.nexusbooking.mobile.ui.components.NexusTopAppBar
 import com.example.nexusbooking.mobile.ui.navigation.HomeTab
-import com.example.nexusbooking.mobile.ui.theme.NexusBlueDark
-import com.example.nexusbooking.mobile.ui.theme.NexusBluePrimary
 
 @Composable
 fun ProfileScreen(
@@ -64,10 +62,10 @@ fun ProfileScreen(
                             contentScale = ContentScale.Fit
                         )
                         val titleText = buildAnnotatedString {
-                            withStyle(SpanStyle(color = NexusBlueDark)) {
+                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onPrimary)) {
                                 append("Nexus")
                             }
-                            withStyle(SpanStyle(color = NexusBluePrimary)) {
+                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
                                 append("Booking")
                             }
                         }

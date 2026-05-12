@@ -52,8 +52,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.nexusbooking.mobile.ui.theme.NexusBlueDark
-import com.example.nexusbooking.mobile.ui.theme.NexusBluePrimary
 import com.example.nexusbooking.mobile.R
 import com.example.nexusbooking.mobile.data.remote.dto.BookingResponse
 import com.example.nexusbooking.mobile.data.remote.dto.FacilityResponse
@@ -120,10 +118,10 @@ fun HomeScreen(
                             contentScale = ContentScale.Fit
                         )
                         val titleText = buildAnnotatedString {
-                            withStyle(SpanStyle(color = NexusBlueDark)) {
+                            withStyle(SpanStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary)) {
                                 append("Nexus")
                             }
-                            withStyle(SpanStyle(color = NexusBluePrimary)) {
+                            withStyle(SpanStyle(color = androidx.compose.material3.MaterialTheme.colorScheme.secondary)) {
                                 append("Booking")
                             }
                         }

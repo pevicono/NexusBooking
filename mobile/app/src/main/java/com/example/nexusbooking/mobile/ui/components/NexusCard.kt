@@ -12,6 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.nexusbooking.mobile.ui.theme.NexusBlueContainer
+import com.example.nexusbooking.mobile.ui.theme.NexusError
+import com.example.nexusbooking.mobile.ui.theme.NexusSuccess
+import com.example.nexusbooking.mobile.ui.theme.NexusWarning
 import com.example.nexusbooking.mobile.R
 
 @Composable
@@ -22,7 +26,7 @@ fun NexusCard(
     Card(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Box(
@@ -41,11 +45,14 @@ fun NexusStatusBadge(
     val statusCode = status.uppercase()
 
     val backgroundColor = when (statusCode) {
-        "AVAILABLE" -> MaterialTheme.colorScheme.secondary
-        "BOOKED" -> Color(0xFFC0392B)
-        "MAINTENANCE" -> Color(0xFFF39C12)
-        "ACTIVE" -> MaterialTheme.colorScheme.secondary
+        "AVAILABLE" -> NexusSuccess
+        "BOOKED" -> NexusError
+        "MAINTENANCE" -> NexusWarning
+        "ACTIVE" -> NexusSuccess
         "INACTIVE" -> Color(0xFF757575)
+        "CONFIRMED", "IN_PROGRESS" -> NexusBlueContainer
+        "CANCELLED", "CLOSED", "RESOLVED" -> NexusSuccess
+        "OPEN", "PENDING" -> NexusWarning
         else -> MaterialTheme.colorScheme.secondary
     }
 

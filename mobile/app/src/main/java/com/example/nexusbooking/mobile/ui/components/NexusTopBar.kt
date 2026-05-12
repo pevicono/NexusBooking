@@ -38,7 +38,10 @@ fun NexusTopAppBar(
             navigationIcon = { navigationIcon?.invoke() ?: Unit },
             actions = { actions?.invoke() ?: Unit },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
             )
         )
     } else {
@@ -48,7 +51,10 @@ fun NexusTopAppBar(
             navigationIcon = { navigationIcon?.invoke() ?: Unit },
             actions = { actions?.invoke() ?: Unit },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.surface
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
             )
         )
     }
@@ -68,7 +74,7 @@ fun NexusIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }

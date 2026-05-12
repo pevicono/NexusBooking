@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.nexusbooking.mobile.ui.theme.NexusDivider
 
 @Composable
 fun NexusTextField(
@@ -43,6 +44,13 @@ fun NexusTextField(
             keyboardOptions = KeyboardOptions(
                 keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text,
                 imeAction = ImeAction.Done
+            ),
+            colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                unfocusedBorderColor = NexusDivider,
+                errorBorderColor = MaterialTheme.colorScheme.error
             )
         )
         if (isError && errorMessage != null) {
